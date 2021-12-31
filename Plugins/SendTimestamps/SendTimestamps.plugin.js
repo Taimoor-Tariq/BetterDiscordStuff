@@ -2,7 +2,7 @@
  * @name SendTimestamps
  * @author Taimoor
  * @authorId 220161488516546561
- * @version 1.0.8
+ * @version 1.1.0
  * @description Use Discord's latest feature of using timestamps in your messages easily.
  * @authorLink https://github.com/Taimoor-Tariq
  * @source https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js
@@ -43,7 +43,7 @@ module.exports = (() => {
                     github_username: "Taimoor-Tariq",
                 },
             ],
-            version: "1.0.8",
+            version: "1.1.0",
             description:
                 "Use Discord's latest feature of using timestamps in your messages easily.",
             github: "https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js",
@@ -52,12 +52,10 @@ module.exports = (() => {
         },
         changelog: [
             {
-                title: "Improvements",
-                type: "improved",
+                title: "Bugs Fixed",
+                type: "fixed",
                 items: [
-                    "**Date and Time**: The current date and time are already selected.",
-                    "**Format**: Most recent used format is now saved.",
-                    "**Preview**: The preview is now shown in the format select."
+                    "**Plugin Crash**: Fixed discord crash on manual time input."
                 ],
             },
         ],
@@ -146,13 +144,46 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         { FormItem } = BdApi.findModuleByProps("FormItem"),
         Dropdown = WebpackModules.getByProps("SingleSelect").SingleSelect;
 
-    let inputTime = new Date(), inputFormat = "f";
+    let inputTime = new Date(), inputFormat = "f"
+        setFormatOpts = null;
 
     const
+        units = {
+            year  : 24 * 60 * 60 * 1000 * 365,
+            month : 24 * 60 * 60 * 1000 * 365/12,
+            day   : 24 * 60 * 60 * 1000,
+            hour  : 60 * 60 * 1000,
+            minute: 60 * 1000,
+            second: 1000
+        },
+        rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' }),
+        isValidDate = (d) => {
+            return d instanceof Date && !isNaN(d);
+        },
+        getRelativeTime = (d1, d2 = new Date()) => {
+            let elapsed = d1 - d2
+
+            // "Math.abs" accounts for both "past" & "future" scenarios
+            for (let u in units)
+                if (Math.abs(elapsed) > units[u] || u == 'second')
+                    return rtf.format(Math.round(elapsed/units[u]), u)
+        },
         createUpdateWrapper = (Component, changeProp = "onChange") => props => {
             const [value, setValue] = BdApi.React.useState(props["value"]);
 
-            console.log(props)
+            if (!!setFormatOpts && isValidDate(inputTime)) {
+                let timeFormats = {
+                    t: inputTime.toLocaleString(undefined, { hour: '2-digit', minute: '2-digit'}).replace(' at', ''),
+                    T: inputTime.toLocaleString(undefined, { timeStyle: 'medium' }).replace(' at', ''),
+                    d: inputTime.toLocaleString(undefined, { dateStyle: 'short' }).replace(' at', ''),
+                    D: inputTime.toLocaleString(undefined, { dateStyle: 'long' }).replace(' at', ''),
+                    f: inputTime.toLocaleString(undefined, { dateStyle: 'long', timeStyle: 'short' }).replace(' at', ''),
+                    F: inputTime.toLocaleString(undefined, { dateStyle: 'full', timeStyle: 'short' }).replace(' at', ''),
+                    R: getRelativeTime(inputTime)
+                };
+
+                setFormatOpts([ {value: "t", label: timeFormats.t}, {value: "T", label: timeFormats.T}, {value: "d", label: timeFormats.d}, {value: "D", label: timeFormats.D}, {value: "f", label: timeFormats.f}, {value: "F", label: timeFormats.F}, {value: "R", label: timeFormats.R} ]);
+            }
 
             return BdApi.React.createElement(Component, {
                 ...props,
@@ -167,35 +198,21 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         updateFormatPreview = (Component, changeProp = "onChange") => props => {
             const [value, setValue] = BdApi.React.useState(props["value"]);
 
-            let
-                units = {
-                    year  : 24 * 60 * 60 * 1000 * 365,
-                    month : 24 * 60 * 60 * 1000 * 365/12,
-                    day   : 24 * 60 * 60 * 1000,
-                    hour  : 60 * 60 * 1000,
-                    minute: 60 * 1000,
-                    second: 1000
-                },
-                rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' }),
-                getRelativeTime = (d1, d2 = new Date()) => {
-                    let elapsed = d1 - d2
+            let timeFormats = {
+                t: inputTime.toLocaleString(undefined, { hour: '2-digit', minute: '2-digit'}).replace(' at', ''),
+                T: inputTime.toLocaleString(undefined, { timeStyle: 'medium' }).replace(' at', ''),
+                d: inputTime.toLocaleString(undefined, { dateStyle: 'short' }).replace(' at', ''),
+                D: inputTime.toLocaleString(undefined, { dateStyle: 'long' }).replace(' at', ''),
+                f: inputTime.toLocaleString(undefined, { dateStyle: 'long', timeStyle: 'short' }).replace(' at', ''),
+                F: inputTime.toLocaleString(undefined, { dateStyle: 'full', timeStyle: 'short' }).replace(' at', ''),
+                R: getRelativeTime(inputTime)
+            };
 
-                    // "Math.abs" accounts for both "past" & "future" scenarios
-                    for (let u in units)
-                        if (Math.abs(elapsed) > units[u] || u == 'second')
-                            return rtf.format(Math.round(elapsed/units[u]), u)
-                },
-                timeFormats = {
-                    t: inputTime.toLocaleString(undefined, { hour: '2-digit', minute: '2-digit'}).replace(' at', ''),
-                    T: inputTime.toLocaleString(undefined, { timeStyle: 'medium' }).replace(' at', ''),
-                    d: inputTime.toLocaleString(undefined, { dateStyle: 'short' }).replace(' at', ''),
-                    D: inputTime.toLocaleString(undefined, { dateStyle: 'long' }).replace(' at', ''),
-                    f: inputTime.toLocaleString(undefined, { dateStyle: 'long', timeStyle: 'short' }).replace(' at', ''),
-                    F: inputTime.toLocaleString(undefined, { dateStyle: 'full', timeStyle: 'short' }).replace(' at', ''),
-                    R: getRelativeTime(inputTime)
-                }
+            const [FormatOptions, setFormatOptions] = BdApi.React.useState([ {value: "t", label: timeFormats.t}, {value: "T", label: timeFormats.T}, {value: "d", label: timeFormats.d}, {value: "D", label: timeFormats.D}, {value: "f", label: timeFormats.f}, {value: "F", label: timeFormats.F}, {value: "R", label: timeFormats.R} ]);
 
-            props.options = [ {value: "t", label: timeFormats.t}, {value: "T", label: timeFormats.T}, {value: "d", label: timeFormats.d}, {value: "D", label: timeFormats.D}, {value: "f", label: timeFormats.f}, {value: "F", label: timeFormats.F}, {value: "R", label: timeFormats.R} ]
+            setFormatOpts = setFormatOptions;
+
+            props.options = FormatOptions;
 
             return BdApi.React.createElement(Component, {
                 ...props,
@@ -203,7 +220,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                 [changeProp]: value => {
                     if (typeof props[changeProp] === "function") props[changeProp](value);
                     setValue(value);
-                }
+                },
             });
         };
 
@@ -278,6 +295,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         }
 
         showTimesampModal() {
+            inputTime = new Date();
+            inputTime.setSeconds(0);
+
             let dateInput = BdApi.React.createElement(FormItem, {
                     className: 'timestamp-modal',
                     title: "Date",
@@ -304,7 +324,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                         BdApi.React.createElement(createUpdateWrapper('input'), {
                             type: "time",
                             id: "timestamp-modal-time",
-                            value: `${inputTime.getHours()}:${inputTime.getMinutes()}`,
+                            value: `${inputTime.getHours()<12?`0${inputTime.getHours()}`:inputTime.getHours()}:${inputTime.getMinutes()<12?`0${inputTime.getMinutes()}`:inputTime.getMinutes()}`,
                             className: "timestamp-modal-custom-input",
                             onChange: (e) => {
                                 let t = e.target.value.split(':');
@@ -320,7 +340,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                     className: 'timestamp-modal',
                     title: "Format",
                     children: [
-                        BdApi.React.createElement(updateFormatPreview(Dropdown), { onChange: (format) => { inputFormat = format; }, value: inputFormat, options: [{value: "t", label: "Short Time"}, {value: "T", label: "Long Time"}, {value: "d", label: "Short Date"}, {value: "D", label: "Long Date"}, {value: "f", label: "Short Date/Time"}, {value: "F", label: "Long Date/Time"}, {value: "R", label: "Relative Time"}] })
+                        BdApi.React.createElement(updateFormatPreview(Dropdown), { onChange: (format) => { inputFormat = format }, value: inputFormat, options: [{value: "t", label: "Short Time"}, {value: "T", label: "Long Time"}, {value: "d", label: "Short Date"}, {value: "D", label: "Long Date"}, {value: "f", label: "Short Date/Time"}, {value: "F", label: "Long Date/Time"}, {value: "R", label: "Relative Time"}] })
                     ]
                 }));
  
