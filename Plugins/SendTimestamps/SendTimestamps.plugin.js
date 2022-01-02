@@ -2,7 +2,7 @@
  * @name SendTimestamps
  * @author Taimoor
  * @authorId 220161488516546561
- * @version 1.1.0
+ * @version 1.1.1
  * @description Use Discord's latest feature of using timestamps in your messages easily.
  * @authorLink https://github.com/Taimoor-Tariq
  * @source https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js
@@ -43,7 +43,7 @@ module.exports = (() => {
                     github_username: "Taimoor-Tariq",
                 },
             ],
-            version: "1.1.0",
+            version: "1.1.1",
             description:
                 "Use Discord's latest feature of using timestamps in your messages easily.",
             github: "https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js",
@@ -52,10 +52,10 @@ module.exports = (() => {
         },
         changelog: [
             {
-                title: "Bugs Fixed",
-                type: "fixed",
+                title: "Improvements",
+                type: "improved",
                 items: [
-                    "**Plugin Crash**: Fixed discord crash on manual time input."
+                    "**Date**: Fixed date not showing by default."
                 ],
             },
         ],
@@ -305,7 +305,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                         BdApi.React.createElement(createUpdateWrapper('input'), {
                             type: "date",
                             id: "timestamp-modal-date",
-                            value: `${inputTime.getFullYear()}-${inputTime.getMonth() + 1}-${inputTime.getDate()}`,
+                            value: `${inputTime.getFullYear()}-${inputTime.getMonth()+1<10?`0${inputTime.getMonth()+1}`:inputTime.getMonth()+1}-${inputTime.getDate()<10?`0${inputTime.getDate()}`:inputTime.getDate()}`,
                             className: "timestamp-modal-custom-input",
                             onChange: (e) => {
                                 let t = e.target.value.split('-');
@@ -324,7 +324,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                         BdApi.React.createElement(createUpdateWrapper('input'), {
                             type: "time",
                             id: "timestamp-modal-time",
-                            value: `${inputTime.getHours()<12?`0${inputTime.getHours()}`:inputTime.getHours()}:${inputTime.getMinutes()<12?`0${inputTime.getMinutes()}`:inputTime.getMinutes()}`,
+                            value: `${inputTime.getHours()<10?`0${inputTime.getHours()}`:inputTime.getHours()}:${inputTime.getMinutes()<10?`0${inputTime.getMinutes()}`:inputTime.getMinutes()}`,
                             className: "timestamp-modal-custom-input",
                             onChange: (e) => {
                                 let t = e.target.value.split(':');
