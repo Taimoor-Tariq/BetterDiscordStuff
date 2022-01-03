@@ -144,7 +144,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         { FormItem } = BdApi.findModuleByProps("FormItem"),
         Dropdown = WebpackModules.getByProps("SingleSelect").SingleSelect;
 
-    let inputTime = new Date(), inputFormat = "f"
+    let inputTime = new Date(), inputFormat = "f",
         setFormatOpts = null;
 
     const
