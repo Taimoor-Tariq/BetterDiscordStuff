@@ -267,6 +267,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                 form = document.querySelector("form"),
                 button = DOMTools.createElement(buttonHTML);
             
+            if (!form) return; 
             if (form.querySelector(".timestamp-button")) return;
 
             if (this.settings.onRight) {
