@@ -242,8 +242,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             this.removeButton();
             const
                 arr = [1, 2, 3, 4, 5, 6, 7, 8, 9],
-                max = this.settings.onRight?document.querySelector(".buttons-3JBrkn").childElementCount:document.querySelector(".attachWrapper-2TRKBi").childElementCount;
-            this.addButton();
+                max = this.settings.onRight?document.querySelector(".buttons-3JBrkn")?.childElementCount:document.querySelector(".attachWrapper-2TRKBi")?.childElementCount;
+                this.addButton();
 
             return Settings.SettingPanel.build(this.saveSettings.bind(this),
                 new Settings.Switch("Button on right", "Place button on right with all buttons or on left with the upload button.", this.settings.onRight, (e) => {
