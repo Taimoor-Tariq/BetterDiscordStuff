@@ -2,7 +2,7 @@
  * @name SendTimestamps
  * @author Taimoor
  * @authorId 220161488516546561
- * @version 1.1.2
+ * @version 1.1.3
  * @description Use Discord's latest feature of using timestamps in your messages easily.
  * @authorLink https://github.com/Taimoor-Tariq
  * @source https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js
@@ -43,13 +43,18 @@ module.exports = (() => {
                     github_username: "Taimoor-Tariq",
                 },
             ],
-            version: "1.1.2",
+            version: "1.1.3",
             description:
                 "Use Discord's latest feature of using timestamps in your messages easily.",
             github: "https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js",
             github_raw:
                 "https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js",
         },
+        changelog: [
+            {title: "Improvements", type: "improved", items: [
+                "Bugs Fixed"
+            ]}
+        ],
         main: "index.js",
     };
 
@@ -267,7 +272,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                 form = document.querySelector("form"),
                 button = DOMTools.createElement(buttonHTML);
             
-            if (form.querySelector(".timestamp-button")) return;
+            if (!form || form.querySelector(".timestamp-button")) return;
 
             if (this.settings.onRight) {
                 if (this.settings.tabIndex > document.querySelector(".buttons-3JBrkn").childElementCount) this.settings.tabIndex = document.querySelector(".buttons-3JBrkn").childElementCount+1;
@@ -282,10 +287,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                 else form.querySelector(`.attachWrapper-2TRKBi > *:nth-child(${this.settings.tabIndex-1})`).after(button);
             };
         
-            button.on("click", this.showTimestampModal);
+            button.on("click", this.showTimesampModal);
         }
 
-        showTimestampModal() {
+        showTimesampModal() {
             inputTime = new Date();
             inputTime.setSeconds(0);
 
