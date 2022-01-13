@@ -2,7 +2,7 @@
  * @name SendTimestamps
  * @author Taimoor
  * @authorId 220161488516546561
- * @version 1.1.3
+ * @version 1.1.5
  * @description Use Discord's latest feature of using timestamps in your messages easily.
  * @authorLink https://github.com/Taimoor-Tariq
  * @source https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js
@@ -43,7 +43,7 @@ module.exports = (() => {
                     github_username: "Taimoor-Tariq",
                 },
             ],
-            version: "1.1.3",
+            version: "1.1.5",
             description:
                 "Use Discord's latest feature of using timestamps in your messages easily.",
             github: "https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js",
@@ -81,20 +81,14 @@ module.exports = (() => {
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Library) => {
     const
-        css = `.attachWrapper-2TRKBi {	display: flex; flex-direction: row; }
-.attachButton-2WznTc { padding: 10px; }
+        css = `.timestamp-button button { min-height: 32px; min-width: 32px; margin-left: 0px; background-color: transparent; }
+.timestamp-button svg { width: 21px; height: 21px; color: var(--interactive-normal); }
+.timestamp-button svg:hover { color: var(--interactive-hover); }
 
-.timestamp-button { color: var(--interactive-normal); }
-.timestamp-button:hover { color: var(--interactive-hover); }
-.timestamp-button button { min-height: 32px; min-width: 32px; margin-left: 0px; }
-.timestamp-button svg { width: 24px; height: 24px; }
-
-.attachWrapper-2TRKBi .timestamp-button { margin-right: 10px; }
-.attachWrapper-2TRKBi .timestamp-button button { min-height: 24px; min-width: 24px; }
-.attachWrapper-2TRKBi .timestamp-button svg { width: 20px; height: 20px; }
+div[class*="buttons"] .timestamp-button { margin-left: -3px; margin-top: 4px; }
+div[class*="attachWrapper"] .timestamp-button { margin-left: 4px; margin-top: 4px; }
 
 .timestamp-modal { padding: 10px 0; }
-
 .timestamp-modal-custom-input {
     font-size: 16px;
     box-sizing: border-box;
@@ -110,7 +104,7 @@ module.exports = (() => {
 input[type="time"]::-webkit-calendar-picker-indicator {
     width: 16px;
     height: 16px;
-    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAsQAAALEBxi1JjQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAHGSURBVEiJxdY9axRRFAbgRw2uCtn4gYJCUNGI+hOCpFlLsbWwiBYq/gGxEAz+F20jVoZgMFgpJtEg6IIaDRaiRYz4ARauxZzkbpbJ3DEIvnA5w/l6z5w799zhP2MnruIuFvED3/AK47iIXRtJvB1j+I5OZi3hOrbVTX4EzyL4NyYwiqPYir54vhC2FaInOJBLfhgfIuAlhmsUNIx2xCxWkTTwPBwfYqDEZzpWL/pD38Fj67TrVlflZclJ7ShDU3qTa73G3VhW9LyqLVUEcCpyLCm+wFVcjsCJiuA6BDAZPqOwOZRnQt7JBNfB7ZBnu5XvgnUoE1znDY5Je7mKn6Fs1CTYV+GzI3y+klq0IjdlCJ6GfFBB0hdyS7dyQb0W7cW81IL9JT4nwr5Aqnw+ZO7kfsZpvMBx3CvxGQk5201wP+T5DAF8QkvRro8l9nMh13zyA4pN6ag3f9ZDS9rgZq9xLIxtxWz5W+zB68hxo8yhIY3p6bIKMskfReyMirthUBrXbcVsyaElVf4eh3IBg9ZeOJOKy2VIcYj6cRJXMCUdvjkcrFEQinbdlDa+ai2Hb24KlKIZlY7jDX7hC94qfgQu2eCl/8/wByYfiBNHGPmWAAAAAElFTkSuQmCC");
+    background-image: url("data:image/svg+xml,%3Csvg role='img' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='currentColor' d='M256,8C119,8,8,119,8,256S119,504,256,504,504,393,504,256,393,8,256,8Zm92.49,313h0l-20,25a16,16,0,0,1-22.49,2.5h0l-67-49.72a40,40,0,0,1-15-31.23V112a16,16,0,0,1,16-16h32a16,16,0,0,1,16,16V256l58,42.5A16,16,0,0,1,348.49,321Z'%3E%3C/path%3E%3C/svg%3E");
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
@@ -128,8 +122,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     filter: invert(80%);
     cursor: pointer;
 }`,
-        buttonHTML = `<div class="buttonContainer-28fw2U timestamp-button">
-    <button aria-label="Enter timestamp" type="button" class="buttonWrapper-1ZmCpA button-318s1X button-38aScr lookBlank-3eh9lL colorBrand-3pXr91 grow-q77ONN">
+        buttonHTML = `<div class="buttonContainer-2lnNiN timestamp-button">
+    <button aria-label="Enter timestamp" type="button">
         <svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
             <path fill="currentColor" d="M256,8C119,8,8,119,8,256S119,504,256,504,504,393,504,256,393,8,256,8Zm92.49,313h0l-20,25a16,16,0,0,1-22.49,2.5h0l-67-49.72a40,40,0,0,1-15-31.23V112a16,16,0,0,1,16-16h32a16,16,0,0,1,16,16V256l58,42.5A16,16,0,0,1,348.49,321Z"></path>
         </svg>
@@ -226,10 +220,21 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             this.defaultSettings = {};
             this.defaultSettings.tabIndex = 1;
             this.defaultSettings.onRight = true;
+
+            this.state = {
+                btns_n: 1,
+            }
         }
 
         onStart() {
             PluginUtilities.addStyle(this.getName(), css);
+            let form = document.querySelector("form")?.querySelector("div > div > div > div > div");
+            if (form) {
+                if (this.settings.onRight) form = form.querySelector("div:nth-child(2)");
+                else form = form.querySelector("div:nth-child(4)");
+
+                this.state.btns_n = form.childElementCount;
+            }
             this.addButton();
         }
 
@@ -240,23 +245,33 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
         getSettingsPanel() {
             this.removeButton();
-            const
-                arr = [1, 2, 3, 4, 5, 6, 7, 8, 9],
-                max = this.settings.onRight?document.querySelector(".buttons-3JBrkn")?.childElementCount:document.querySelector(".attachWrapper-2TRKBi")?.childElementCount;
-                this.addButton();
+            let form = document.querySelector("form")?.querySelector("div > div > div > div > div");
+
+            if (form) {
+                if (this.settings.onRight) form = form.querySelector("div:nth-child(2)");
+                else form = form.querySelector("div:nth-child(4)");
+
+                this.state.btns_n = form.childElementCount;
+            }
 
             return Settings.SettingPanel.build(this.saveSettings.bind(this),
-                new Settings.Switch("Button on right", "Place button on right with all buttons or on left with the upload button.", this.settings.onRight, (e) => {
+                new Settings.Switch("Button on left", "Place button on right with all buttons or on left with the upload button.", this.settings.onRight, (e) => {
                     this.settings.onRight = e;
                     this.removeButton();
+                    let form = document.querySelector("form")?.querySelector("div > div > div > div > div");
+                    if (form) {
+                        if (this.settings.onRight) form = form.querySelector("div:nth-child(2)");
+                        else form = form.querySelector("div:nth-child(4)");
+                        this.state.btns_n = form.childElementCount;
+                    }
                     this.addButton();
                 }),
-                new Settings.Slider("Position", "Position of the button from left", 1, max, this.settings.tabIndex, (e) => {
+                new Settings.Slider("Position", "Position of the button from left", 1, this.state.btns_n+1, this.settings.tabIndex, (e) => {
                     this.settings.tabIndex = e;
                     this.removeButton();
                     this.addButton();
                 }, {
-                    markers: arr.slice(0, max+1),
+                    markers: Array.apply(null, Array(this.state.btns_n+1)).map(function (x, i) { return i+1; }),
                     stickToMarkers: true
                 }),
             );
@@ -268,24 +283,18 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         }
 
         addButton() {
-            const
-                form = document.querySelector("form"),
+            let form = document.querySelector("form")?.querySelector("div > div > div > div > div"),
                 button = DOMTools.createElement(buttonHTML);
             
             if (!form || form.querySelector(".timestamp-button")) return;
 
-            if (this.settings.onRight) {
-                if (this.settings.tabIndex > document.querySelector(".buttons-3JBrkn").childElementCount) this.settings.tabIndex = document.querySelector(".buttons-3JBrkn").childElementCount+1;
+            if (this.settings.onRight) form = form.querySelector("div:nth-child(2)");
+            else form = form.querySelector("div:nth-child(4)");
 
-                if (this.settings.tabIndex==1) form.querySelector(`.buttons-3JBrkn`).prepend(button);
-                else form.querySelector(`.buttons-3JBrkn > *:nth-child(${this.settings.tabIndex-1})`).after(button);
-            }
-            else {
-                if (this.settings.tabIndex > document.querySelector(".attachWrapper-2TRKBi").childElementCount) this.settings.tabIndex = document.querySelector(".attachWrapper-2TRKBi").childElementCount+1;
+            this.state.btns_n = form.childElementCount;
 
-                if (this.settings.tabIndex==1) form.querySelector(`.attachWrapper-2TRKBi`).prepend(button);
-                else form.querySelector(`.attachWrapper-2TRKBi > *:nth-child(${this.settings.tabIndex-1})`).after(button);
-            };
+            if (this.settings.tabIndex==1) form.prepend(button);
+            else form.querySelector(`div:nth-child(${this.settings.tabIndex-1})`).after(button);
         
             button.on("click", this.showTimesampModal);
         }
