@@ -2,7 +2,7 @@
  * @name SendTimestamps
  * @author Taimoor
  * @authorId 220161488516546561
- * @version 1.1.5
+ * @version 1.1.6
  * @description Use Discord's latest feature of using timestamps in your messages easily.
  * @authorLink https://github.com/Taimoor-Tariq
  * @source https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js
@@ -43,7 +43,7 @@ module.exports = (() => {
                     github_username: "Taimoor-Tariq",
                 },
             ],
-            version: "1.1.5",
+            version: "1.1.6",
             description:
                 "Use Discord's latest feature of using timestamps in your messages easily.",
             github: "https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js",
@@ -52,7 +52,8 @@ module.exports = (() => {
         },
         changelog: [
             {title: "Improvements", type: "improved", items: [
-                "Bugs Fixed"
+                "**CSS Fixed**: Fixed a swarm of bugs making the button look out of place.",
+                "**Fixed DM**: The button is back in the DMs.",
             ]}
         ],
         main: "index.js",
@@ -81,12 +82,20 @@ module.exports = (() => {
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Library) => {
     const
-        css = `.timestamp-button button { min-height: 32px; min-width: 32px; margin-left: 0px; background-color: transparent; }
+        css = `div[class*="attachWrapper"] {
+    display: flex;
+    flex-direction: row;
+}
+
+.timestamp-button { margin-top: 4px; }
+.timestamp-button button { min-height: 32px; min-width: 32px; margin-left: 0px; background-color: transparent; }
 .timestamp-button svg { width: 21px; height: 21px; color: var(--interactive-normal); }
 .timestamp-button svg:hover { color: var(--interactive-hover); }
 
-div[class*="buttons"] .timestamp-button { margin-left: -3px; margin-top: 4px; }
-div[class*="attachWrapper"] .timestamp-button { margin-left: 4px; margin-top: 4px; }
+div[class*="buttons"] .timestamp-button { margin-left: -3px; }
+div[class*="buttons"] :last-child.timestamp-button { margin-left: 2px; margin-right: 6px; }
+div[class*="attachWrapper"] :nth-child(1).timestamp-button { margin-left: -6px; margin-right: 6px; }
+div[class*="attachWrapper"] :nth-child(n+2).timestamp-button { margin-left: -10px; margin-right: 8px; }
 
 .timestamp-modal { padding: 10px 0; }
 .timestamp-modal-custom-input {
@@ -101,27 +110,18 @@ div[class*="attachWrapper"] .timestamp-button { margin-left: 4px; margin-top: 4p
     padding: 10px;
 }
 
-input[type="time"]::-webkit-calendar-picker-indicator {
+input::-webkit-calendar-picker-indicator {
     width: 16px;
     height: 16px;
-    background-image: url("data:image/svg+xml,%3Csvg role='img' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='currentColor' d='M256,8C119,8,8,119,8,256S119,504,256,504,504,393,504,256,393,8,256,8Zm92.49,313h0l-20,25a16,16,0,0,1-22.49,2.5h0l-67-49.72a40,40,0,0,1-15-31.23V112a16,16,0,0,1,16-16h32a16,16,0,0,1,16,16V256l58,42.5A16,16,0,0,1,348.49,321Z'%3E%3C/path%3E%3C/svg%3E");
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    filter: invert(100%);
-    cursor: pointer;
-}
-
-input[type="date"]::-webkit-calendar-picker-indicator {
-    width: 16px;
-    height: 16px;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z'/%3E%3C/svg%3E");
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
     filter: invert(80%);
     cursor: pointer;
-}`,
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator { background-image: url("data:image/svg+xml,%3Csvg role='img' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='currentColor' d='M256,8C119,8,8,119,8,256S119,504,256,504,504,393,504,256,393,8,256,8Zm92.49,313h0l-20,25a16,16,0,0,1-22.49,2.5h0l-67-49.72a40,40,0,0,1-15-31.23V112a16,16,0,0,1,16-16h32a16,16,0,0,1,16,16V256l58,42.5A16,16,0,0,1,348.49,321Z'%3E%3C/path%3E%3C/svg%3E"); }
+input[type="date"]::-webkit-calendar-picker-indicator { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z'/%3E%3C/svg%3E"); }`,
         buttonHTML = `<div class="buttonContainer-2lnNiN timestamp-button">
     <button aria-label="Enter timestamp" type="button">
         <svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -129,7 +129,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         </svg>
     </button>
 </div>`,
-        { DiscordSelectors, PluginUtilities, DOMTools, Modals, WebpackModules } = Api,
+        PermissionsStore = BdApi.findModuleByProps("Permissions", "ActivityTypes").Permissions,
+        GuildsStore = BdApi.findModuleByProps("getGuilds").getGuilds(),
+        { DiscordSelectors, PluginUtilities, DOMTools, Modals, WebpackModules, DiscordModules: { NavigationUtils } } = Api,
         { Logger, Settings } = Library,
         { FormItem } = BdApi.findModuleByProps("FormItem"),
         Dropdown = WebpackModules.getByProps("SingleSelect").SingleSelect;
@@ -219,22 +221,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             super();
             this.defaultSettings = {};
             this.defaultSettings.tabIndex = 1;
-            this.defaultSettings.onRight = true;
-
-            this.state = {
-                btns_n: 1,
-            }
+            this.defaultSettings.onLeft = true;
         }
 
         onStart() {
             PluginUtilities.addStyle(this.getName(), css);
-            let form = document.querySelector("form")?.querySelector("div > div > div > div > div");
-            if (form) {
-                if (this.settings.onRight) form = form.querySelector("div:nth-child(2)");
-                else form = form.querySelector("div:nth-child(4)");
-
-                this.state.btns_n = form.childElementCount;
-            }
             this.addButton();
         }
 
@@ -245,33 +236,51 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
         getSettingsPanel() {
             this.removeButton();
-            let form = document.querySelector("form")?.querySelector("div > div > div > div > div");
 
-            if (form) {
-                if (this.settings.onRight) form = form.querySelector("div:nth-child(2)");
-                else form = form.querySelector("div:nth-child(4)");
+            // temporary fix???, does not work 90% of the time, will find fix soon
+            let form = document.querySelector("form")?.querySelector("div[class*='inner']"),
+                btnsCount = 1;
 
-                this.state.btns_n = form.childElementCount;
+            if (!form || form.querySelector("div[class*='placeholder']")?.innerHTML == "You do not have permission to send messages in this channel.") {
+                let cG = null,
+                cC = null;
+
+                for (var g in GuildsStore) {
+                    let ChannelsStore = BdApi.findModuleByProps("getChannels").getChannels(g).SELECTABLE.map(c => { return c.channel }).map(c => { return c.id });
+                    
+                    for (var c in ChannelsStore) {
+                        if (BdApi.findModuleByProps('getChannelPermissions').canWithPartialContext(PermissionsStore.SEND_MESSAGES, { channelId: ChannelsStore[c] })) {
+                            cG = g;
+                            cC = ChannelsStore[c];
+                            break;
+                        }
+                    }
+
+                    if (cG != null) break;
+                }
+
+                NavigationUtils.transitionTo(`/channels/${cG}/${cC}`);
             }
 
+            form = document.querySelector("form")?.querySelector("div[class*='inner']");
+            if (this.settings.onLeft)  form = form.querySelector("div:nth-child(2)");
+            else form = form.querySelector("div:nth-child(4)");
+            btnsCount = form.childElementCount;
+
+            this.addButton();
+
             return Settings.SettingPanel.build(this.saveSettings.bind(this),
-                new Settings.Switch("Button on left", "Place button on right with all buttons or on left with the upload button.", this.settings.onRight, (e) => {
-                    this.settings.onRight = e;
+                new Settings.Switch("Button on left", "Place button on right with all buttons or on left with the upload button.", this.settings.onLeft, (e) => {
+                    this.settings.onLeft = e;
                     this.removeButton();
-                    let form = document.querySelector("form")?.querySelector("div > div > div > div > div");
-                    if (form) {
-                        if (this.settings.onRight) form = form.querySelector("div:nth-child(2)");
-                        else form = form.querySelector("div:nth-child(4)");
-                        this.state.btns_n = form.childElementCount;
-                    }
                     this.addButton();
                 }),
-                new Settings.Slider("Position", "Position of the button from left", 1, this.state.btns_n+1, this.settings.tabIndex, (e) => {
+                new Settings.Slider("Position", "Position of the button from left", 1, btnsCount+1, this.settings.tabIndex, (e) => {
                     this.settings.tabIndex = e;
                     this.removeButton();
                     this.addButton();
                 }, {
-                    markers: Array.apply(null, Array(this.state.btns_n+1)).map(function (x, i) { return i+1; }),
+                    markers: Array.apply(null, Array(btnsCount+1)).map(function (x, i) { return i+1; }),
                     stickToMarkers: true
                 }),
             );
@@ -283,18 +292,16 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         }
 
         addButton() {
-            let form = document.querySelector("form")?.querySelector("div > div > div > div > div"),
+            let form = document.querySelector("form")?.querySelector("div[class*='inner']"),
                 button = DOMTools.createElement(buttonHTML);
             
-            if (!form || form.querySelector(".timestamp-button")) return;
+            if (!form || form.querySelector(".timestamp-button") || form.querySelector("div[class*='placeholder']")?.innerHTML == "You do not have permission to send messages in this channel.") return;
 
-            if (this.settings.onRight) form = form.querySelector("div:nth-child(2)");
+            if (this.settings.onLeft)  form = form.querySelector("div:nth-child(2)");
             else form = form.querySelector("div:nth-child(4)");
 
-            this.state.btns_n = form.childElementCount;
-
             if (this.settings.tabIndex==1) form.prepend(button);
-            else form.querySelector(`div:nth-child(${this.settings.tabIndex-1})`).after(button);
+            else form.insertBefore(button, form.querySelector(`div:nth-child(${this.settings.tabIndex-1})`).nextSibling);
         
             button.on("click", this.showTimesampModal);
         }
