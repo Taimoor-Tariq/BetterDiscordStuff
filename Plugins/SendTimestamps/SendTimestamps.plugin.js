@@ -2,7 +2,7 @@
  * @name SendTimestamps
  * @author Taimoor
  * @authorId 220161488516546561
- * @version 1.1.6
+ * @version 1.1.7
  * @description Use Discord's latest feature of using timestamps in your messages easily.
  * @authorLink https://github.com/Taimoor-Tariq
  * @source https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js
@@ -43,7 +43,7 @@ module.exports = (() => {
                     github_username: "Taimoor-Tariq",
                 },
             ],
-            version: "1.1.6",
+            version: "1.1.7",
             description:
                 "Use Discord's latest feature of using timestamps in your messages easily.",
             github: "https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js",
@@ -52,8 +52,7 @@ module.exports = (() => {
         },
         changelog: [
             {title: "Improvements", type: "improved", items: [
-                "**CSS Fixed**: Fixed a swarm of bugs making the button look out of place.",
-                "**Fixed DM**: The button is back in the DMs.",
+                "**CSS Fixed**: Fixed bug where button is not placed correctly on left if attach button is not present in message box.",
             ]}
         ],
         main: "index.js",
@@ -92,6 +91,7 @@ module.exports = (() => {
 .timestamp-button svg { width: 21px; height: 21px; color: var(--interactive-normal); }
 .timestamp-button svg:hover { color: var(--interactive-hover); }
 
+div[class*="inner"] .timestamp-button { margin-right: 8px; }
 div[class*="buttons"] .timestamp-button { margin-left: -3px; }
 div[class*="buttons"] :last-child.timestamp-button { margin-left: 2px; margin-right: 6px; }
 div[class*="attachWrapper"] :nth-child(1).timestamp-button { margin-left: -6px; margin-right: 6px; }
@@ -295,15 +295,18 @@ input[type="date"]::-webkit-calendar-picker-indicator { background-image: url("d
             let form = document.querySelector("form")?.querySelector("div[class*='inner']"),
                 button = DOMTools.createElement(buttonHTML);
             
+            button.on("click", this.showTimesampModal);
+            
             if (!form || form.querySelector(".timestamp-button") || form.querySelector("div[class*='placeholder']")?.innerHTML == "You do not have permission to send messages in this channel.") return;
 
-            if (this.settings.onLeft)  form = form.querySelector("div:nth-child(2)");
+            if (this.settings.onLeft) {
+                if (form.querySelector("div:nth-child(2)").getAttribute("role") == "textbox") return form.prepend(button);
+                form = form.querySelector("div:nth-child(2)");
+            }
             else form = form.querySelector("div:nth-child(4)");
 
             if (this.settings.tabIndex==1) form.prepend(button);
             else form.insertBefore(button, form.querySelector(`div:nth-child(${this.settings.tabIndex-1})`).nextSibling);
-        
-            button.on("click", this.showTimesampModal);
         }
 
         showTimesampModal() {
