@@ -2,7 +2,7 @@
  * @name SendTimestamps
  * @author Taimoor
  * @authorId 220161488516546561
- * @version 1.1.7
+ * @version 1.1.8
  * @description Use Discord's latest feature of using timestamps in your messages easily.
  * @authorLink https://github.com/Taimoor-Tariq
  * @source https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js
@@ -43,7 +43,7 @@ module.exports = (() => {
                     github_username: "Taimoor-Tariq",
                 },
             ],
-            version: "1.1.7",
+            version: "1.1.8",
             description:
                 "Use Discord's latest feature of using timestamps in your messages easily.",
             github: "https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js",
@@ -52,7 +52,7 @@ module.exports = (() => {
         },
         changelog: [
             {title: "Improvements", type: "improved", items: [
-                "**CSS Fixed**: Fixed bug where button is not placed correctly on left if attach button is not present in message box.",
+                "Plugin works again!",
             ]}
         ],
         main: "index.js",
@@ -295,7 +295,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { background-image: url("d
             let form = document.querySelector("form")?.querySelector("div[class*='inner']"),
                 button = DOMTools.createElement(buttonHTML);
             
-            button.on("click", this.showTimesampModal);
+            button.addEventListener("click", this.showTimesampModal);
             
             if (!form || form.querySelector(".timestamp-button") || form.querySelector("div[class*='placeholder']")?.innerHTML == "You do not have permission to send messages in this channel.") return;
 
