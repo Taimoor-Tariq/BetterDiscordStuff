@@ -2,7 +2,7 @@
  * @name SendTimestamps
  * @author Taimoor
  * @authorId 220161488516546561
- * @version 1.1.8
+ * @version 1.1.9
  * @description Use Discord's latest feature of using timestamps in your messages easily.
  * @authorLink https://github.com/Taimoor-Tariq
  * @source https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js
@@ -43,7 +43,7 @@ module.exports = (() => {
                     github_username: "Taimoor-Tariq",
                 },
             ],
-            version: "1.1.8",
+            version: "1.1.9",
             description:
                 "Use Discord's latest feature of using timestamps in your messages easily.",
             github: "https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js",
@@ -52,7 +52,7 @@ module.exports = (() => {
         },
         changelog: [
             {title: "Improvements", type: "improved", items: [
-                "Plugin works again!",
+                "Bugs fixed",
             ]}
         ],
         main: "index.js",
@@ -86,14 +86,12 @@ module.exports = (() => {
     flex-direction: row;
 }
 
-.timestamp-button { margin-top: 4px; }
+.timestamp-button { margin-top: 4px; max-height: 40px; justify-content: center; }
 .timestamp-button button { min-height: 32px; min-width: 32px; margin-left: 0px; background-color: transparent; }
 .timestamp-button svg { width: 21px; height: 21px; color: var(--interactive-normal); }
 .timestamp-button svg:hover { color: var(--interactive-hover); }
 
-div[class*="inner"] .timestamp-button { margin-right: 8px; }
-div[class*="buttons"] .timestamp-button { margin-left: -3px; }
-div[class*="buttons"] :last-child.timestamp-button { margin-left: 2px; margin-right: 6px; }
+div[class*="buttons"] :last-child.timestamp-button { margin-left: 4px; margin-right: 8px; }
 div[class*="attachWrapper"] :nth-child(1).timestamp-button { margin-left: -6px; margin-right: 6px; }
 div[class*="attachWrapper"] :nth-child(n+2).timestamp-button { margin-left: -10px; margin-right: 8px; }
 
@@ -264,7 +262,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { background-image: url("d
 
             form = document.querySelector("form")?.querySelector("div[class*='inner']");
             if (this.settings.onLeft)  form = form.querySelector("div:nth-child(2)");
-            else form = form.querySelector("div:nth-child(4)");
+            else form = form.querySelector("div[class*='buttons']");
             btnsCount = form.childElementCount;
 
             this.addButton();
@@ -303,10 +301,10 @@ input[type="date"]::-webkit-calendar-picker-indicator { background-image: url("d
                 if (form.querySelector("div:nth-child(2)").getAttribute("role") == "textbox") return form.prepend(button);
                 form = form.querySelector("div:nth-child(2)");
             }
-            else form = form.querySelector("div:nth-child(4)");
+            else form = form.querySelector("div[class*='buttons']");
 
             if (this.settings.tabIndex==1) form.prepend(button);
-            else form.insertBefore(button, form.querySelector(`div:nth-child(${this.settings.tabIndex-1})`).nextSibling);
+            else form.insertBefore(button, form.querySelector(`div:nth-child(${this.settings.tabIndex-1})`)?.nextSibling);
         }
 
         showTimesampModal() {
