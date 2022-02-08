@@ -1,0 +1,6 @@
+# SendTimestamps <a href="https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js" download>![Download][download-badge]</a>
+
+[download-badge]: https://img.shields.io/badge/Download-%233a71c1.svg?style=flat&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAgCAYAAAAIXrg4AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAd5gAAHeYBMKt3fAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAE9SURBVEiJ7ZQ7TsNAFEWv06IAShOkEDD5UNCwB8RCWEYWAqkIYiEgZQERoqLgFz4hUIaC+tCM4cmyk4mxCyRfaSRL8+49781YI3kKOASmwBtw4OvzFnDJry58fZUlGGvme70IQCaVgBLwXwBADegDp0AjaxjQAAbACVCzG+fmGRgDYYJ5ZGpGCfuh80Ya/EwgqWpqQ0lDoLVE5y1JQ+eNVLUFXfdSWr0A7UUTAG1XazUFuvEudoFJrPAd2EsDuMZeY56PyJM0aqohDljU0Lzz7KSMbMMmJB9px/fStoFH/PWMuS9fyBbw4Bnu/cclQe7nhD8BO5nCDaQJ3CWEj/8cbiAbwI0JvwU2cwk3kDpw7FY91/BShSoAmpKOJK3knP0l6SwAriXt5xwe6SoAPiWtFgSYVST1JM2KCJfU+wadgFl0/0HGbQAAAABJRU5ErkJggg==
+### Use Discord's feature of using timestamps in your messages easily.
+
+![cover](https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/assets/img1.png)
