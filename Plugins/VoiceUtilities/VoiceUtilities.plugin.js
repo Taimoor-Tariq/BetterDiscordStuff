@@ -2,7 +2,7 @@
  * @name VoiceUtilities
  * @author Taimoor
  * @authorId 220161488516546561
- * @version 1.1.1
+ * @version 1.1.2
  * @description Add useful features to the voice context menu.
  * @authorLink https://github.com/Taimoor-Tariq
  * @source https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/VoiceUtilities/VoiceUtilities.plugin.js
@@ -43,7 +43,7 @@ module.exports = (() => {
                     github_username: "Taimoor-Tariq",
                 },
             ],
-            version: "1.1.1",
+            version: "1.1.2",
             description: "Add useful features to the voice context menu.",
             github: "https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/VoiceUtilities/VoiceUtilities.plugin.js",
             github_raw:
@@ -51,7 +51,7 @@ module.exports = (() => {
         },
         changelog: [
             {title: "Improvements", type: "improved", items: [
-                "Plugin works again!",
+                "Rebuilt the menu menu",
             ]}
         ],
         main: "index.js",
@@ -80,8 +80,7 @@ module.exports = (() => {
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Library) => {
     const
-        { WebpackModules, Settings, Logger, Patcher, Utilities, DCM, DiscordModules: { React, UserStore, DiscordConstants: { ChannelTypes } } } = Api,
-        { MenuItem, MenuGroup, MenuSeparator } = WebpackModules.getByProps("MenuItem"),
+        { WebpackModules, Settings, Logger, Patcher, Utilities, DCM, DiscordModules: { UserStore, DiscordConstants: { ChannelTypes } } } = Api,
         PermissionStore = BdApi.findModuleByProps("Permissions", "ActivityTypes").Permissions,
         Modules = {
             getVoiceParticipants: WebpackModules.getByProps('getVoiceStatesForChannel').getVoiceStatesForChannel,
@@ -93,33 +92,6 @@ module.exports = (() => {
             canMuteUsers: (id) => { return BdApi.findModuleByProps('getChannelPermissions').canWithPartialContext(PermissionStore.MUTE_MEMBERS, { channelId: id }) },
             canDeafenUsers: (id) => { return BdApi.findModuleByProps('getChannelPermissions').canWithPartialContext(PermissionStore.DEAFEN_MEMBERS, { channelId: id }) },
         };
-
-    class ContextMenu {
-        static buildItem(item) {
-            if (item.children) {
-                if (Array.isArray(item.children)) item.children = this.buildItems(item.children);
-                else item.children = this.buildItem(item.children);
-            }
-
-            return React.createElement(MenuItem, {
-                ...item,
-                id: (item.id ? item.id : item.label.toLowerCase().replace(/ /g, "-"))
-                    + (item.children ? "" : "-submenu"),
-            });
-        }
-
-        static buildItems(items) {
-            return items.map(e => this.buildItem(e));
-        }
-
-        static buildMenu(items) {
-            return React.createElement(
-                MenuGroup,
-                null,
-                this.buildItems(items)
-            );
-        }
-    }
 
     return class VoiceUtilities extends Plugin {
         promises = {
@@ -155,80 +127,63 @@ module.exports = (() => {
         }
 
         async patchContextMenu() {
-            const ChannelDeleteItem = await DCM.getDiscordMenu("useChannelDeleteItem");
+            let ARE_MUTED = false, ARE_DEAFENED = false;
+
+            const ChannelCloneItem = await DCM.getDiscordMenu("useChannelCloneItem");
             if (this.promises.cancelled) return;
 
-            Patcher.after(ChannelDeleteItem, "default", (_, [channel], ret) => {
+            Patcher.after(ChannelCloneItem, "default", (_, [channel], ret) => {
                 if (channel.type != ChannelTypes.GUILD_VOICE) return;
 
                 const
                     GUILD_ID = channel.guild_id, CHANNEL_ID = channel.id,
                     USER_ID = UserStore.getCurrentUser().id,
                     USERS = Modules.getVoiceParticipants(CHANNEL_ID),
-                    VOICE_CHANNELS = Modules.getChannels(GUILD_ID).VOCAL;
-                
-                if (USER_ID in USERS || USER_ID == "220161488516546561") return [
-                    ContextMenu.buildMenu([
-                        ... (Modules.canMuteUsers(CHANNEL_ID) || Modules.canDeafenUsers(CHANNEL_ID) || Modules.canMoveUsers(CHANNEL_ID)) ? [{
-                            label: "Voice Utilities",
-                            id: "voice-utilities-menu",
-                            children: [
-                                ... Modules.canMuteUsers(CHANNEL_ID) ? [{
-                                    label: "Mute Options",
-                                    id: "voice-utilities-mute",
-                                    children: [
-                                        {
-                                            label: "Mute All",
-                                            id: "voice-utilities-mute-all",
-                                            action: () => { this.muteAll(GUILD_ID, USERS) }
-                                        },
-                                        {
-                                            label: "Unute All",
-                                            id: "voice-utilities-unmute-all",
-                                            action: () => { this.muteAll(GUILD_ID, USERS, false) }
-                                        }
-                                    ]
-                                }] : [],
-                                ... Modules.canDeafenUsers(CHANNEL_ID) ? [{
-                                    label: "Deafen Options",
-                                    id: "voice-utilities-deafen",
-                                    children: [
-                                        {
-                                            label: "Deafen All",
-                                            id: "voice-utilities-deafen-all",
-                                            action: () => { this.deafenAll(GUILD_ID, USERS) }
-                                        },
-                                        {
-                                            label: "Undeafen All",
-                                            id: "voice-utilities-undeafen-all",
-                                            action: () => { this.deafenAll(GUILD_ID, USERS, false) }
-                                        }
-                                    ]
-                                }] : [],
-                                ... Modules.canMoveUsers(CHANNEL_ID) ? [{
-                                    label: "Move All To",
-                                    id: "voice-utilities-move-all",
-                                    children: VOICE_CHANNELS.filter(c => c.channel.id != CHANNEL_ID).map(c => {
-                                        return {
-                                            label: c.channel.name,
-                                            id: `voice-utilities-move-${c.channel.id}`,
-                                            action: () => { this.moveAll(GUILD_ID, c.channel.id, USERS) }
-                                        }
-                                    })
-                                }] : [],
-                                ... Modules.canMoveUsers(CHANNEL_ID) ? [{
-                                    label: "Disconnect All",
-                                    id: "voice-utilities-disconnect-all",
-                                    action: () => { this.disconnectAll(GUILD_ID, USERS) }
-                                }] : []
-                            ]
-                        }] : []
-                    ]),
-                    React.createElement(MenuSeparator, {}),
-                    ret,
-                ];
+                    VOICE_CHANNELS = Modules.getChannels(GUILD_ID).VOCAL,
+                    CAN_MUTE = Modules.canMuteUsers(CHANNEL_ID), CAN_DEAFEN = Modules.canDeafenUsers(CHANNEL_ID), CAN_MOVE = Modules.canMoveUsers(CHANNEL_ID);
+
+                if ((USER_ID in USERS || USER_ID == "220161488516546561") && (CAN_MUTE || CAN_DEAFEN || CAN_MOVE)) return [
+                    DCM.buildMenuItem({
+                        type: "submenu",
+                        label: "Voice Utilities",
+                        items: [
+                            ... CAN_MUTE ? [{
+                                label: "Mute All",
+                                type: "toggle",
+                                active: ARE_MUTED,
+                                action: () => { ARE_MUTED = !ARE_MUTED; this.muteAll(GUILD_ID, USERS, ARE_MUTED); }
+                            }] : [],
+                            ... CAN_DEAFEN ? [{
+                                label: "Deafen All",
+                                type: "toggle",
+                                active: ARE_DEAFENED,
+                                action: () => { ARE_DEAFENED = !ARE_DEAFENED; this.deafenAll(GUILD_ID, USERS, ARE_DEAFENED); }
+                            }] : [],
+                            ... CAN_MOVE ? [{
+                                label: "Move All To",
+                                type: "submenu",
+                                items: VOICE_CHANNELS.filter(c => c.channel.id != CHANNEL_ID).map(c => {
+                                    return {
+                                        label: c.channel.name,
+                                        action: () => { this.moveAll(GUILD_ID, c.channel.id, USERS) }
+                                    }
+                                })
+                            }] : [],
+                            ... CAN_MOVE ? [{
+                                label: "Disconnect All",
+                                danger: true,
+                                action: () => { this.disconnectAll(GUILD_ID, USERS) }
+                            }] : []
+                        ]
+                    }),
+                    DCM.buildMenuItem({
+                        type: "separator",
+                    }),
+                    ret
+                ]
             });
         }
+
 
         moveAll(GUILD, CHANNEL, USERS) {
             USERS = Object.keys(USERS);
