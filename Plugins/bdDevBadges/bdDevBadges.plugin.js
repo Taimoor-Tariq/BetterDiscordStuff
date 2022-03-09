@@ -2,7 +2,7 @@
  * @name bdDevBadges
  * @author Taimoor
  * @authorId 220161488516546561
- * @version 1.0.0
+ * @version 1.0.1
  * @description Show badges for BetterDiscord Plugin and Theme Developers.
  * @authorLink https://github.com/Taimoor-Tariq
  * @source https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/bdDevBadges/bdDevBadges.plugin.js
@@ -43,12 +43,17 @@ module.exports = (() => {
                     github_username: "Taimoor-Tariq",
                 },
             ],
-            version: "1.0.0",
+            version: "1.0.1",
             description:
                 "Show badges for BetterDiscord Plugin and Theme Developers.",
             github: "https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/bdDevBadges/bdDevBadges.plugin.js",
             github_raw: "https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/bdDevBadges/bdDevBadges.plugin.js",
         },
+        changelog: [
+            {title: "Improvements", type: "improved", items: [
+                "New Badges!",
+            ]}
+        ],
         main: "index.js",
     };
 
@@ -77,7 +82,7 @@ module.exports = (() => {
     const request = require("request"),
         css = `.bd-dev-badge {
     margin-left: 5px;
-    margin-top: 5px;
+    margin-top: 3px;
 }
 
 .bd-dev-badge-tooltip {
@@ -87,8 +92,8 @@ module.exports = (() => {
     color: #fff;
     padding: 12px 10px;
     font-size: 12pt;
-    top: 110%;
-    right: 0;
+    bottom: 130%;
+    left: 0;
     white-space: nowrap;
     font-weight: bold;
     border: 1px solid #fff;
@@ -97,87 +102,138 @@ module.exports = (() => {
     z-index: 999999;
 }
 
+.bd-dev-dev-badge:hover .bd-dev-badge-tooltip,
+.bd-mod-dev-badge:hover .bd-dev-badge-tooltip,
 .bd-theme-dev-badge:hover .bd-dev-badge-tooltip,
 .bd-plugin-dev-badge:hover .bd-dev-badge-tooltip {
     visibility: visible;
 }
 
+.bd-dev-dev-badge,
+.bd-mod-dev-badge,
 .bd-theme-dev-badge,
 .bd-plugin-dev-badge {
     position: relative;
 }
 
+.bd-dev-dev-badge .bd-dev-badge-tooltip { color: #3e82e5; border-color: #3e82e5; }
+.bd-mod-dev-badge .bd-dev-badge-tooltip { color: #2ecc71; border-color: #2ecc71; }
 .bd-theme-dev-badge .bd-dev-badge-tooltip { color: #f1c40f; border-color: #f1c40f; }
 .bd-plugin-dev-badge .bd-dev-badge-tooltip { color: #c93f73; border-color: #c93f73; }
-`,
-        {
-            PluginUtilities,
-            Logger,
-            Patcher,
-            DiscordModules,
-        } = Api,
+
+div[class^="userPopout-"] .bd-dev-badge-tooltip {
+    top: 130%;
+    right: 0;
+    left: auto;
+    bottom: auto;
+}
+
+.header-2jRmjb { overflow: unset !important; }
+.header-2jRmjb,
+.headerText-2z4IhQ { display: flex !important; }
+.headerText-2z4IhQ  .bd-dev-badge { margin-top: 2px; }`,
+        { PluginUtilities, Logger, Patcher, DiscordModules, WebpackModules } =
+            Api,
         { React } = DiscordModules;
 
     return class bdDevBadges extends Plugin {
         constructor() {
             super();
+            this.bdDevs = [
+                "249746236008169473", // Zerebos#7790
+            ];
+            this.bdMods = [
+                "140188899585687552", // Qwerasd#5202
+                "415849376598982656", // Strencher#1044
+                "219363409097916416", // square#3880
+            ]; // Taken from the new BD dev server
+
             this.themeDevs = [];
             this.pluginDevs = [];
 
-            this.themeDevBadge = React.createElement(
-                "div",
-                {
-                    className: "bd-theme-dev-badge",
-                    "aria-label": "BD theme Developer",
-                    tabIndex: 0,
-                    children: [
-                        React.createElement(
-                            "span",
-                            {
-                                className: "bd-dev-badge-tooltip",
-                            },
-                            "BD Theme Developer"
-                        ),
-                        React.createElement(
-                            "img",
-                            {
-                                alt: " ",
-                                ariaHidden: true,
-                                // src: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMTAwJSIgd2lkdGg9IjE2IiB2aWV3Qm94PSIwIDAgMjAwMCAyMDAwIj4NCiAgICA8Zz4NCiAgICAgICAgPHBhdGggZmlsbD0iIzNFODJFNSIgZD0iTTE0MDIuMiw2MzEuN2MtOS43LTM1My40LTI4Ni4yLTQ5Ni02NDIuNi00OTZINjguNHY3MTQuMWw0NDIsMzk4VjQ5MC43aDI1N2MyNzQuNSwwLDI3NC41LDM0NC45LDAsMzQ0LjlINTk3LjZ2MzI5LjVoMTY5LjhjMjc0LjUsMCwyNzQuNSwzNDQuOCwwLDM0NC44aC02OTl2MzU0LjloNjkxLjJjMzU2LjMsMCw2MzIuOC0xNDIuNiw2NDIuNi00OTZjMC0xNjIuNi00NC41LTI4NC4xLTEyMi45LTM2OC42QzEzNTcuNyw5MTUuOCwxNDAyLjIsNzk0LjMsMTQwMi4yLDYzMS43eiIgLz4NCiAgICAgICAgPHBhdGggZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNjIuNSwxMzUuMkwxMjYyLjUsMTM1LjJsLTc2LjgsMGMyNi42LDEzLjMsNTEuNywyOC4xLDc1LDQ0LjNjNzAuNyw0OS4xLDEyNi4xLDExMS41LDE2NC42LDE4NS4zYzM5LjksNzYuNiw2MS41LDE2NS42LDY0LjMsMjY0LjZsMCwxLjJ2MS4yYzAsMTQxLjEsMCw1OTYuMSwwLDczNy4xdjEuMmwwLDEuMmMtMi43LDk5LTI0LjMsMTg4LTY0LjMsMjY0LjZjLTM4LjUsNzMuOC05My44LDEzNi4yLTE2NC42LDE4NS4zYy0yMi42LDE1LjctNDYuOSwzMC4xLTcyLjYsNDMuMWg3Mi41YzM0Ni4yLDEuOSw2NzEtMTcxLjIsNjcxLTU2Ny45VjcxNi43QzE5MzMuNSwzMTIuMiwxNjA4LjcsMTM1LjIsMTI2Mi41LDEzNS4yeiIgLz4NCiAgICA8L2c+DQo8L3N2Zz4=",
-                                src: "data:image/svg+xml;base64,PHN2ZyBkYXRhLW5hbWU9IkFwcGVhcmFuY2UiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiB2aWV3Qm94PSIwIDAgMjQgMjQiPg0KICAgIDxwYXRoIGZpbGw9IiNmMWM0MGYiIGQ9Ik0xMiAwQzUuMzczIDAgMCA1LjM3MyAwIDEyczUuMzczIDEyIDEyIDEyYzEuMTA3IDAgMi0uODkzIDItMiAwLS41Mi0uMi0uOTg3LS41Mi0xLjM0N2EyLjAwMyAyLjAwMyAwIDAxLS41MDctMS4zMmMwLTEuMTA2Ljg5NC0yIDItMmgyLjM2QTYuNjcgNi42NyAwIDAwMjQgMTAuNjY3QzI0IDQuNzczIDE4LjYyNyAwIDEyIDB6TTQuNjY3IDEyYy0xLjEwNyAwLTItLjg5My0yLTJzLjg5My0yIDItMmMxLjEwNiAwIDIgLjg5MyAyIDJzLS44OTQgMi0yIDJ6bTQtNS4zMzNjLTEuMTA3IDAtMi0uODk0LTItMiAwLTEuMTA3Ljg5My0yIDItMiAxLjEwNiAwIDIgLjg5MyAyIDIgMCAxLjEwNi0uODk0IDItMiAyem02LjY2NiAwYy0xLjEwNiAwLTItLjg5NC0yLTIgMC0xLjEwNy44OTQtMiAyLTIgMS4xMDcgMCAyIC44OTMgMiAyIDAgMS4xMDYtLjg5MyAyLTIgMnptNCA1LjMzM2MtMS4xMDYgMC0yLS44OTMtMi0ycy44OTQtMiAyLTJjMS4xMDcgMCAyIC44OTMgMiAycy0uODkzIDItMiAyeiIvPg0KPC9zdmc+",
-                                className: "bd-dev-badge",
-                            }
-                        )
-                    ]
-                }
-            );
+            this.bdDevBadge = React.createElement("div", {
+                className: "bd-dev-dev-badge",
+                "aria-label": "BD Developer",
+                tabIndex: 0,
+                children: [
+                    React.createElement(
+                        "span",
+                        {
+                            className: "bd-dev-badge-tooltip",
+                        },
+                        "Developer"
+                    ),
+                    React.createElement("img", {
+                        alt: " ",
+                        ariaHidden: true,
+                        src: "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' height='100%25' width='16' viewBox='0 0 2000 2000'%3e%3cg%3e%3cpath fill='%233e82e5' d='M1402.2%2c631.7c-9.7-353.4-286.2-496-642.6-496H68.4v714.1l442%2c398V490.7h257c274.5%2c0%2c274.5%2c344.9%2c0%2c344.9H597.6v329.5h169.8c274.5%2c0%2c274.5%2c344.8%2c0%2c344.8h-699v354.9h691.2c356.3%2c0%2c632.8-142.6%2c642.6-496c0-162.6-44.5-284.1-122.9-368.6C1357.7%2c915.8%2c1402.2%2c794.3%2c1402.2%2c631.7z'/%3e%3cpath fill='white' d='M1262.5%2c135.2L1262.5%2c135.2l-76.8%2c0c26.6%2c13.3%2c51.7%2c28.1%2c75%2c44.3c70.7%2c49.1%2c126.1%2c111.5%2c164.6%2c185.3c39.9%2c76.6%2c61.5%2c165.6%2c64.3%2c264.6l0%2c1.2v1.2c0%2c141.1%2c0%2c596.1%2c0%2c737.1v1.2l0%2c1.2c-2.7%2c99-24.3%2c188-64.3%2c264.6c-38.5%2c73.8-93.8%2c136.2-164.6%2c185.3c-22.6%2c15.7-46.9%2c30.1-72.6%2c43.1h72.5c346.2%2c1.9%2c671-171.2%2c671-567.9V716.7C1933.5%2c312.2%2c1608.7%2c135.2%2c1262.5%2c135.2z'/%3e%3c/g%3e%3c/svg%3e",
+                        className: "bd-dev-badge",
+                    }),
+                ],
+            });
 
-            this.pluginDevBadge = React.createElement(
-                "div",
-                {
-                    className: "bd-plugin-dev-badge",
-                    "aria-label": "BD plugin Developer",
-                    tabIndex: 0,
-                    children: [
-                        React.createElement(
-                            "span",
-                            {
-                                className: "bd-dev-badge-tooltip",
-                            },
-                            "BD Plugin Developer"
-                        ),
-                        React.createElement(
-                            "img",
-                            {
-                                alt: " ",
-                                ariaHidden: true,
-                                src: "data:image/svg+xml;base64,PHN2ZyBkYXRhLW5hbWU9IlBsdWdpbnMiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiB2aWV3Qm94PSIwIDAgMjQgMjQiPg0KICAgIDxwYXRoIGZpbGw9IiNjOTNmNzMiIGQ9Ik0yMS4xNDMgMTEuNDI5aC0xLjcxNFY2Ljg1N2EyLjI5MiAyLjI5MiAwIDAwLTIuMjg2LTIuMjg2SDEyLjU3VjIuODU3YTIuODU4IDIuODU4IDAgMDAtNS43MTQgMHYxLjcxNEgyLjI4NkEyLjI4MyAyLjI4MyAwIDAwLjAxIDYuODU3VjExLjJoMS43MDNBMy4wODcgMy4wODcgMCAwMTQuOCAxNC4yODZhMy4wODcgMy4wODcgMCAwMS0zLjA4NiAzLjA4NUgwdjQuMzQzQTIuMjkyIDIuMjkyIDAgMDAyLjI4NiAyNGg0LjM0M3YtMS43MTRBMy4wODcgMy4wODcgMCAwMTkuNzE0IDE5LjJhMy4wODcgMy4wODcgMCAwMTMuMDg2IDMuMDg2VjI0aDQuMzQzYTIuMjkyIDIuMjkyIDAgMDAyLjI4Ni0yLjI4NnYtNC41NzFoMS43MTRhMi44NTggMi44NTggMCAwMDAtNS43MTR6Ii8+DQo8L3N2Zz4=",
-                                className: "bd-dev-badge",
-                            }
-                        )
-                    ]
-                }
-            );
+            this.bdModBadge = React.createElement("div", {
+                className: "bd-mod-dev-badge",
+                "aria-label": "BD Moderator",
+                tabIndex: 0,
+                children: [
+                    React.createElement(
+                        "span",
+                        {
+                            className: "bd-dev-badge-tooltip",
+                        },
+                        "Moderator"
+                    ),
+                    React.createElement("img", {
+                        alt: " ",
+                        ariaHidden: true,
+                        src: "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' height='100%25' width='16' viewBox='0 0 2000 2000'%3e%3cg%3e%3cpath fill='%232ecc71' d='M1402.2%2c631.7c-9.7-353.4-286.2-496-642.6-496H68.4v714.1l442%2c398V490.7h257c274.5%2c0%2c274.5%2c344.9%2c0%2c344.9H597.6v329.5h169.8c274.5%2c0%2c274.5%2c344.8%2c0%2c344.8h-699v354.9h691.2c356.3%2c0%2c632.8-142.6%2c642.6-496c0-162.6-44.5-284.1-122.9-368.6C1357.7%2c915.8%2c1402.2%2c794.3%2c1402.2%2c631.7z'/%3e%3cpath fill='white' d='M1262.5%2c135.2L1262.5%2c135.2l-76.8%2c0c26.6%2c13.3%2c51.7%2c28.1%2c75%2c44.3c70.7%2c49.1%2c126.1%2c111.5%2c164.6%2c185.3c39.9%2c76.6%2c61.5%2c165.6%2c64.3%2c264.6l0%2c1.2v1.2c0%2c141.1%2c0%2c596.1%2c0%2c737.1v1.2l0%2c1.2c-2.7%2c99-24.3%2c188-64.3%2c264.6c-38.5%2c73.8-93.8%2c136.2-164.6%2c185.3c-22.6%2c15.7-46.9%2c30.1-72.6%2c43.1h72.5c346.2%2c1.9%2c671-171.2%2c671-567.9V716.7C1933.5%2c312.2%2c1608.7%2c135.2%2c1262.5%2c135.2z'/%3e%3c/g%3e%3c/svg%3e",
+                        className: "bd-dev-badge",
+                    }),
+                ],
+            });
+
+            this.themeDevBadge = React.createElement("div", {
+                className: "bd-theme-dev-badge",
+                "aria-label": "BD theme Developer",
+                tabIndex: 0,
+                children: [
+                    React.createElement(
+                        "span",
+                        {
+                            className: "bd-dev-badge-tooltip",
+                        },
+                        "Theme Developer"
+                    ),
+                    React.createElement("img", {
+                        alt: " ",
+                        ariaHidden: true,
+                        src: "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' height='100%25' width='16' viewBox='0 0 2000 2000'%3e%3cg%3e%3cpath fill='%23f1c40f' d='M1402.2%2c631.7c-9.7-353.4-286.2-496-642.6-496H68.4v714.1l442%2c398V490.7h257c274.5%2c0%2c274.5%2c344.9%2c0%2c344.9H597.6v329.5h169.8c274.5%2c0%2c274.5%2c344.8%2c0%2c344.8h-699v354.9h691.2c356.3%2c0%2c632.8-142.6%2c642.6-496c0-162.6-44.5-284.1-122.9-368.6C1357.7%2c915.8%2c1402.2%2c794.3%2c1402.2%2c631.7z'/%3e%3cpath fill='white' d='M1262.5%2c135.2L1262.5%2c135.2l-76.8%2c0c26.6%2c13.3%2c51.7%2c28.1%2c75%2c44.3c70.7%2c49.1%2c126.1%2c111.5%2c164.6%2c185.3c39.9%2c76.6%2c61.5%2c165.6%2c64.3%2c264.6l0%2c1.2v1.2c0%2c141.1%2c0%2c596.1%2c0%2c737.1v1.2l0%2c1.2c-2.7%2c99-24.3%2c188-64.3%2c264.6c-38.5%2c73.8-93.8%2c136.2-164.6%2c185.3c-22.6%2c15.7-46.9%2c30.1-72.6%2c43.1h72.5c346.2%2c1.9%2c671-171.2%2c671-567.9V716.7C1933.5%2c312.2%2c1608.7%2c135.2%2c1262.5%2c135.2z'/%3e%3c/g%3e%3c/svg%3e",
+                        className: "bd-dev-badge",
+                    }),
+                ],
+            });
+
+            this.pluginDevBadge = React.createElement("div", {
+                className: "bd-plugin-dev-badge",
+                "aria-label": "BD plugin Developer",
+                tabIndex: 0,
+                children: [
+                    React.createElement(
+                        "span",
+                        {
+                            className: "bd-dev-badge-tooltip",
+                        },
+                        "Plugin Developer"
+                    ),
+                    React.createElement("img", {
+                        alt: " ",
+                        ariaHidden: true,
+                        src: "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' height='100%25' width='16' viewBox='0 0 2000 2000'%3e%3cg%3e%3cpath fill='%23c93f73' d='M1402.2%2c631.7c-9.7-353.4-286.2-496-642.6-496H68.4v714.1l442%2c398V490.7h257c274.5%2c0%2c274.5%2c344.9%2c0%2c344.9H597.6v329.5h169.8c274.5%2c0%2c274.5%2c344.8%2c0%2c344.8h-699v354.9h691.2c356.3%2c0%2c632.8-142.6%2c642.6-496c0-162.6-44.5-284.1-122.9-368.6C1357.7%2c915.8%2c1402.2%2c794.3%2c1402.2%2c631.7z'/%3e%3cpath fill='white' d='M1262.5%2c135.2L1262.5%2c135.2l-76.8%2c0c26.6%2c13.3%2c51.7%2c28.1%2c75%2c44.3c70.7%2c49.1%2c126.1%2c111.5%2c164.6%2c185.3c39.9%2c76.6%2c61.5%2c165.6%2c64.3%2c264.6l0%2c1.2v1.2c0%2c141.1%2c0%2c596.1%2c0%2c737.1v1.2l0%2c1.2c-2.7%2c99-24.3%2c188-64.3%2c264.6c-38.5%2c73.8-93.8%2c136.2-164.6%2c185.3c-22.6%2c15.7-46.9%2c30.1-72.6%2c43.1h72.5c346.2%2c1.9%2c671-171.2%2c671-567.9V716.7C1933.5%2c312.2%2c1608.7%2c135.2%2c1262.5%2c135.2z'/%3e%3c/g%3e%3c/svg%3e",
+                        className: "bd-dev-badge",
+                    }),
+                ],
+            });
         }
 
         onStart() {
@@ -192,6 +248,7 @@ module.exports = (() => {
 
         async initialize() {
             await this.getDevelopers();
+            this.patchMessages();
             this.patchUserProfileBadgeList();
         }
 
@@ -218,6 +275,27 @@ module.exports = (() => {
             });
         }
 
+        patchMessages() {
+            let MessageHeader = BdApi.findAllModules((m) =>
+                m?.default?.displayName.includes("MessageHeader")
+            )[0];
+            Patcher.after(MessageHeader, "default", (_, [props], ret) => {
+                const { message } = props;
+                let user = message.author;
+
+                if (this.bdDevs.includes(user.id))
+                    ret.props.username.props.children[1].props.children.push(this.bdDevBadge);
+                else {
+                    if (this.bdMods.includes(user.id))
+                        ret.props.username.props.children[1].props.children.push(this.bdModBadge);
+                    if (this.pluginDevs.includes(user.id))
+                        ret.props.username.props.children[1].props.children.push(this.pluginDevBadge);
+                    if (this.themeDevs.includes(user.id))
+                        ret.props.username.props.children[1].props.children.push(this.themeDevBadge);
+                }
+            });
+        }
+
         patchUserProfileBadgeList() {
             let userProfileBadgeList = BdApi.findAllModules((m) =>
                 m?.default?.displayName.includes("UserProfileBadgeList")
@@ -228,8 +306,16 @@ module.exports = (() => {
                 (_, [props], ret) => {
                     const { user } = props;
 
-                    if (this.themeDevs.includes(user.id)) ret.props.children.push(this.themeDevBadge);
-                    if (this.pluginDevs.includes(user.id)) ret.props.children.push(this.pluginDevBadge);
+                    if (this.bdDevs.includes(user.id))
+                        ret.props.children.push(this.bdDevBadge);
+                    else {
+                        if (this.bdMods.includes(user.id))
+                            ret.props.children.push(this.bdModBadge);
+                        if (this.pluginDevs.includes(user.id))
+                            ret.props.children.push(this.pluginDevBadge);
+                        if (this.themeDevs.includes(user.id))
+                            ret.props.children.push(this.themeDevBadge);
+                    }
                 }
             );
         }
