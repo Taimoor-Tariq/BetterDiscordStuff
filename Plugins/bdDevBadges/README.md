@@ -4,4 +4,3 @@
 ### Show badges for BetterDiscord Plugin and Theme Developers.
 
 ![cover](https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/bdDevBadges/assets/img1.png)
-![cover](https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/bdDevBadges/assets/img2.png)
