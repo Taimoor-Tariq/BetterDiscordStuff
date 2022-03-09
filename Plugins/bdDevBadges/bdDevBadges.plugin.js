@@ -100,9 +100,10 @@ module.exports = (() => {
     left: -240%;
     z-index: 999999;
 }
-div[class^="userPopout-"] .bd-dev-badge-tooltip {
-    bottom: 220%;
-}
+
+div[class^="userPopout-"] .bd-dev-badge-tooltip { bottom: 220%; }
+div[aria-label="User Profile Modal"] .bd-dev-badge { margin-top: 5px; }
+div[aria-label="User Profile Modal"] .bd-dev-badge-tooltip { bottom: 210%; }
 
 .bd-dev-badge-tooltip:after {
     content: "";
@@ -147,59 +148,8 @@ div[class^="userPopout-"] .bd-dev-badge-tooltip {
     return class bdDevBadges extends Plugin {
         constructor() {
             super();
-            this.bdDevs = [
-                "249746236008169473", // Zerebos#7790
-            ];
-            this.bdMods = [
-                "140188899585687552", // Qwerasd#5202
-                "415849376598982656", // Strencher#1044
-                "219363409097916416", // square#3880
-            ]; // Taken from the new BD dev server
-
             this.themeDevs = [];
             this.pluginDevs = [];
-
-            this.bdDevBadge = React.createElement("div", {
-                className: "bd-dev-dev-badge",
-                "aria-label": "BD Developer",
-                tabIndex: 0,
-                children: [
-                    React.createElement(
-                        "span",
-                        {
-                            className: "bd-dev-badge-tooltip",
-                        },
-                        "Developer"
-                    ),
-                    React.createElement("img", {
-                        alt: " ",
-                        ariaHidden: true,
-                        src: "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' height='100%25' width='16' viewBox='0 0 2000 2000'%3e%3cg%3e%3cpath fill='%233e82e5' d='M1402.2%2c631.7c-9.7-353.4-286.2-496-642.6-496H68.4v714.1l442%2c398V490.7h257c274.5%2c0%2c274.5%2c344.9%2c0%2c344.9H597.6v329.5h169.8c274.5%2c0%2c274.5%2c344.8%2c0%2c344.8h-699v354.9h691.2c356.3%2c0%2c632.8-142.6%2c642.6-496c0-162.6-44.5-284.1-122.9-368.6C1357.7%2c915.8%2c1402.2%2c794.3%2c1402.2%2c631.7z'/%3e%3cpath fill='white' d='M1262.5%2c135.2L1262.5%2c135.2l-76.8%2c0c26.6%2c13.3%2c51.7%2c28.1%2c75%2c44.3c70.7%2c49.1%2c126.1%2c111.5%2c164.6%2c185.3c39.9%2c76.6%2c61.5%2c165.6%2c64.3%2c264.6l0%2c1.2v1.2c0%2c141.1%2c0%2c596.1%2c0%2c737.1v1.2l0%2c1.2c-2.7%2c99-24.3%2c188-64.3%2c264.6c-38.5%2c73.8-93.8%2c136.2-164.6%2c185.3c-22.6%2c15.7-46.9%2c30.1-72.6%2c43.1h72.5c346.2%2c1.9%2c671-171.2%2c671-567.9V716.7C1933.5%2c312.2%2c1608.7%2c135.2%2c1262.5%2c135.2z'/%3e%3c/g%3e%3c/svg%3e",
-                        className: "bd-dev-badge",
-                    }),
-                ],
-            });
-
-            this.bdModBadge = React.createElement("div", {
-                className: "bd-mod-dev-badge",
-                "aria-label": "BD Moderator",
-                tabIndex: 0,
-                children: [
-                    React.createElement(
-                        "span",
-                        {
-                            className: "bd-dev-badge-tooltip",
-                        },
-                        "Moderator"
-                    ),
-                    React.createElement("img", {
-                        alt: " ",
-                        ariaHidden: true,
-                        src: "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' height='100%25' width='16' viewBox='0 0 2000 2000'%3e%3cg%3e%3cpath fill='%232ecc71' d='M1402.2%2c631.7c-9.7-353.4-286.2-496-642.6-496H68.4v714.1l442%2c398V490.7h257c274.5%2c0%2c274.5%2c344.9%2c0%2c344.9H597.6v329.5h169.8c274.5%2c0%2c274.5%2c344.8%2c0%2c344.8h-699v354.9h691.2c356.3%2c0%2c632.8-142.6%2c642.6-496c0-162.6-44.5-284.1-122.9-368.6C1357.7%2c915.8%2c1402.2%2c794.3%2c1402.2%2c631.7z'/%3e%3cpath fill='white' d='M1262.5%2c135.2L1262.5%2c135.2l-76.8%2c0c26.6%2c13.3%2c51.7%2c28.1%2c75%2c44.3c70.7%2c49.1%2c126.1%2c111.5%2c164.6%2c185.3c39.9%2c76.6%2c61.5%2c165.6%2c64.3%2c264.6l0%2c1.2v1.2c0%2c141.1%2c0%2c596.1%2c0%2c737.1v1.2l0%2c1.2c-2.7%2c99-24.3%2c188-64.3%2c264.6c-38.5%2c73.8-93.8%2c136.2-164.6%2c185.3c-22.6%2c15.7-46.9%2c30.1-72.6%2c43.1h72.5c346.2%2c1.9%2c671-171.2%2c671-567.9V716.7C1933.5%2c312.2%2c1608.7%2c135.2%2c1262.5%2c135.2z'/%3e%3c/g%3e%3c/svg%3e",
-                        className: "bd-dev-badge",
-                    }),
-                ],
-            });
 
             this.themeDevBadge = React.createElement("div", {
                 className: "bd-theme-dev-badge",
@@ -291,16 +241,10 @@ div[class^="userPopout-"] .bd-dev-badge-tooltip {
                 const { message } = props;
                 let user = message.author;
 
-                if (this.bdDevs.includes(user.id))
-                    ret.props.username.props.children[1].props.children.push(this.bdDevBadge);
-                else {
-                    if (this.bdMods.includes(user.id))
-                        ret.props.username.props.children[1].props.children.push(this.bdModBadge);
-                    if (this.pluginDevs.includes(user.id))
-                        ret.props.username.props.children[1].props.children.push(this.pluginDevBadge);
-                    if (this.themeDevs.includes(user.id))
-                        ret.props.username.props.children[1].props.children.push(this.themeDevBadge);
-                }
+                if (this.pluginDevs.includes(user.id))
+                    ret.props.username.props.children[1].props.children.push(this.pluginDevBadge);
+                if (this.themeDevs.includes(user.id))
+                    ret.props.username.props.children[1].props.children.push(this.themeDevBadge);
             });
         }
 
@@ -314,16 +258,10 @@ div[class^="userPopout-"] .bd-dev-badge-tooltip {
                 (_, [props], ret) => {
                     const { user } = props;
 
-                    if (this.bdDevs.includes(user.id))
-                        ret.props.children.push(this.bdDevBadge);
-                    else {
-                        if (this.bdMods.includes(user.id))
-                            ret.props.children.push(this.bdModBadge);
-                        if (this.pluginDevs.includes(user.id))
-                            ret.props.children.push(this.pluginDevBadge);
-                        if (this.themeDevs.includes(user.id))
-                            ret.props.children.push(this.themeDevBadge);
-                    }
+                    if (this.pluginDevs.includes(user.id))
+                        ret.props.children.push(this.pluginDevBadge);
+                    if (this.themeDevs.includes(user.id))
+                        ret.props.children.push(this.themeDevBadge);
                 }
             );
         }
