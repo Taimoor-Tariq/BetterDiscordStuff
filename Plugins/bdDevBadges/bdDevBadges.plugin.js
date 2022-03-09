@@ -2,7 +2,7 @@
  * @name bdDevBadges
  * @author Taimoor
  * @authorId 220161488516546561
- * @version 1.0.1
+ * @version 1.0.2
  * @description Show badges for BetterDiscord Plugin and Theme Developers.
  * @authorLink https://github.com/Taimoor-Tariq
  * @source https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/bdDevBadges/bdDevBadges.plugin.js
@@ -43,7 +43,7 @@ module.exports = (() => {
                     github_username: "Taimoor-Tariq",
                 },
             ],
-            version: "1.0.1",
+            version: "1.0.2",
             description:
                 "Show badges for BetterDiscord Plugin and Theme Developers.",
             github: "https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/bdDevBadges/bdDevBadges.plugin.js",
@@ -51,7 +51,7 @@ module.exports = (() => {
         },
         changelog: [
             {title: "Improvements", type: "improved", items: [
-                "New Badges!",
+                "Better Tooltips!",
             ]}
         ],
         main: "index.js",
@@ -89,17 +89,30 @@ module.exports = (() => {
     visibility: hidden;
     position: absolute;
     background-color: var(--background-floating);
-    color: #fff;
-    padding: 12px 10px;
-    font-size: 12pt;
-    bottom: 130%;
-    left: 0;
-    white-space: nowrap;
-    font-weight: bold;
-    border: 1px solid #fff;
+    box-shadow: var(--elevation-high);
+    color: var(--text-normal);
     border-radius: 5px;
-    filter: drop-shadow(5px 5px 10px #000);
+    font-size: 14px;
+    white-space: nowrap;
+    font-weight: 500;
+    padding: 8px 12px;
+    bottom: 140%;
+    left: -240%;
     z-index: 999999;
+}
+div[class^="userPopout-"] .bd-dev-badge-tooltip {
+    bottom: 220%;
+}
+
+.bd-dev-badge-tooltip:after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: var(--background-floating) transparent transparent transparent;
 }
 
 .bd-dev-dev-badge:hover .bd-dev-badge-tooltip,
@@ -116,22 +129,17 @@ module.exports = (() => {
     position: relative;
 }
 
-.bd-dev-dev-badge .bd-dev-badge-tooltip { color: #3e82e5; border-color: #3e82e5; }
-.bd-mod-dev-badge .bd-dev-badge-tooltip { color: #2ecc71; border-color: #2ecc71; }
-.bd-theme-dev-badge .bd-dev-badge-tooltip { color: #f1c40f; border-color: #f1c40f; }
-.bd-plugin-dev-badge .bd-dev-badge-tooltip { color: #c93f73; border-color: #c93f73; }
-
-div[class^="userPopout-"] .bd-dev-badge-tooltip {
-    top: 130%;
-    right: 0;
-    left: auto;
-    bottom: auto;
-}
-
+.userPopout-2j1gM4,
+.headerTop-3GPUSF,
 .header-2jRmjb { overflow: unset !important; }
 .header-2jRmjb,
 .headerText-2z4IhQ { display: flex !important; }
-.headerText-2z4IhQ  .bd-dev-badge { margin-top: 2px; }`,
+.headerText-2z4IhQ  .bd-dev-badge { margin-top: 2px; }
+
+.headerNormal-3Zn_yu {
+    border-radius: 8px 8px 0 0;
+    overflow: hidden;
+}`,
         { PluginUtilities, Logger, Patcher, DiscordModules, WebpackModules } =
             Api,
         { React } = DiscordModules;
