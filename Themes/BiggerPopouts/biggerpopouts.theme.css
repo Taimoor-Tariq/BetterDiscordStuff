@@ -1,0 +1,13 @@
+/**
+* @name BiggerPopuots
+* @author Taimoor#0001
+* @description Increase the size of popouts.
+* @version 1.0
+*/
+
+@import url(http://localhost:8000/themes/biggerpopouts.css);
+
+:root {
+    --stream-popout-width: 1000px; // Default 250px
+    --user-popout-width: 500px; // Default 300px
+}
