@@ -5,7 +5,7 @@
 * @version 1.0
 */
 
-@import url(http://localhost:8000/themes/biggerpopouts.css);
+@import url(https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Themes/BiggerPopouts/biggerpopouts.css);
 
 :root {
     --stream-popout-width: 1000px; // Default 250px
