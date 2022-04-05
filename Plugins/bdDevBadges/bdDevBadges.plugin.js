@@ -1,12 +1,13 @@
 /**
  * @name bdDevBadges
+ * @version 1.0.5
+ * @description Badges for BetterDiscord Plugin and Theme Developers.
  * @author Taimoor
  * @authorId 220161488516546561
- * @version 1.0.3
- * @description Show badges for BetterDiscord Plugin and Theme Developers.
  * @authorLink https://github.com/Taimoor-Tariq
- * @source https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/bdDevBadges/bdDevBadges.plugin.js
- * @updateUrl https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/bdDevBadges/bdDevBadges.plugin.js
+ * @source https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/bdDevBadges/bdDevBadges.plugin.js
+ * @github_raw https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/bdDevBadges/bdDevBadges.plugin.js
+ * @donate https://ko-fi.com/TaimoorTariq
  */
 /*@cc_on
 @if (@_jscript)
@@ -33,29 +34,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {
-        info: {
-            name: "BD Dev Badges",
-            authors: [
-                {
-                    name: "Taimoor",
-                    discord_id: "220161488516546561",
-                    github_username: "Taimoor-Tariq",
-                },
-            ],
-            version: "1.0.3",
-            description:
-                "Show badges for BetterDiscord Plugin and Theme Developers.",
-            github: "https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/bdDevBadges/bdDevBadges.plugin.js",
-            github_raw: "https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/bdDevBadges/bdDevBadges.plugin.js",
-        },
-        changelog: [
-            {title: "Improvements", type: "improved", items: [
-                "Clicking on badges now take you to the developer's page.",
-            ]}
-        ],
-        main: "index.js",
-    };
+    const config = {"info":{"name":"bdDevBadges","version":"1.0.5","description":"Badges for BetterDiscord Plugin and Theme Developers.","author":"Taimoor","authorId":"220161488516546561","authorLink":"https://github.com/Taimoor-Tariq","source":"https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/bdDevBadges/bdDevBadges.plugin.js","github_raw":"https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/bdDevBadges/bdDevBadges.plugin.js","donate":"https://ko-fi.com/TaimoorTariq","authors":[{"name":"Taimoor","discord_id":"220161488516546561"}]},"changelog":[{"title":"Improvements","type":"improved","items":["**Added Settings**: Added settings to enable or disable badges showing in specific areas."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -121,7 +100,8 @@ div[aria-label="User Profile Modal"] .bd-dev-badge-tooltip { top: -23px; }
 
 .userPopout-2j1gM4,
 .headerTop-3GPUSF,
-.header-2jRmjb { overflow: unset !important; }
+.header-2jRmjb,
+.content-1U25dZ { overflow: unset !important; }
 .header-2jRmjb,
 .headerText-2z4IhQ { display: flex !important; align-items: center !important; }
 
@@ -129,8 +109,7 @@ div[aria-label="User Profile Modal"] .bd-dev-badge-tooltip { top: -23px; }
     border-radius: 8px 8px 0 0;
     overflow: hidden;
 }`,
-        { PluginUtilities, Logger, Patcher, DiscordModules, WebpackModules } =
-            Api,
+        { PluginUtilities, Logger, Patcher, DiscordModules, Settings, WebpackModules } = Api,
         { React } = DiscordModules;
 
     return class bdDevBadges extends Plugin {
@@ -139,6 +118,10 @@ div[aria-label="User Profile Modal"] .bd-dev-badge-tooltip { top: -23px; }
             this.themeDevs = [];
             this.pluginDevs = [];
             this.authorNames = {};
+            this.defaultSettings = {
+                showInChat: true,
+                showInMemberList: true,
+            };
 
             this.badgesConfig = {
                 'theme': {
@@ -190,9 +173,35 @@ div[aria-label="User Profile Modal"] .bd-dev-badge-tooltip { top: -23px; }
             Patcher.unpatchAll();
         }
 
+        getSettingsPanel() {
+            return Settings.SettingPanel.build(this.saveSettings.bind(this),
+                new Settings.Switch(
+                    "Show in Chat",
+                    "This option will show the badges next to the user's name in chat.",
+                    this.settings.showInChat,
+                    (e) => {
+                        this.settings.showInChat = e;
+                        Patcher.unpatchAll();
+                        this.initialize();
+                    }
+                ),
+                new Settings.Switch(
+                    "Show in Member List",
+                    "This option will show the badges next to the user's name in the member list.",
+                    this.settings.showInMemberList,
+                    (e) => {
+                        this.settings.showInMemberList = e;
+                        Patcher.unpatchAll();
+                        this.initialize();
+                    }
+                ),
+            );
+        }
+
         async initialize() {
             await this.getDevelopers();
-            this.patchMessages();
+            if (this.settings.showInChat) this.patchMessages();
+            if (this.settings.showInMemberList) this.patchMemberList();
             this.patchUserProfileBadgeList();
         }
 
@@ -232,6 +241,18 @@ div[aria-label="User Profile Modal"] .bd-dev-badge-tooltip { top: -23px; }
                     ret.props.username.props.children[1].props.children.push(this.createDevBadge('plugin', this.authorNames[user.id]));
                 if (this.themeDevs.includes(user.id))
                     ret.props.username.props.children[1].props.children.push(this.createDevBadge('theme', this.authorNames[user.id]));
+            });
+        }
+
+        patchMemberList() {
+            const MemberListItem = WebpackModules.getByDisplayName("MemberListItem");
+            Patcher.after(MemberListItem.prototype, "renderDecorators", ({ props }, _, ret) => {
+                const { user } = props;
+
+                if (this.pluginDevs.includes(user.id))
+                    ret.props.children.push(this.createDevBadge('plugin', this.authorNames[user.id]));
+                if (this.themeDevs.includes(user.id))
+                    ret.props.children.push(this.createDevBadge('theme', this.authorNames[user.id]));
             });
         }
 
