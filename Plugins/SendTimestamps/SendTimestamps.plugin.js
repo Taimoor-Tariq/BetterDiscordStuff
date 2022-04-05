@@ -1,12 +1,13 @@
 /**
  * @name SendTimestamps
+ * @version 1.1.10
+ * @description Use Discord's latest feature of using timestamps in your messages easily.
  * @author Taimoor
  * @authorId 220161488516546561
- * @version 1.1.9
- * @description Use Discord's latest feature of using timestamps in your messages easily.
  * @authorLink https://github.com/Taimoor-Tariq
- * @source https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js
- * @updateUrl https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js
+ * @source https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js
+ * @github_raw https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js
+ * @donate https://ko-fi.com/TaimoorTariq
  */
 /*@cc_on
 @if (@_jscript)
@@ -33,30 +34,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {
-        info: {
-            name: "Send Timestamps",
-            authors: [
-                {
-                    name: "Taimoor",
-                    discord_id: "220161488516546561",
-                    github_username: "Taimoor-Tariq",
-                },
-            ],
-            version: "1.1.9",
-            description:
-                "Use Discord's latest feature of using timestamps in your messages easily.",
-            github: "https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js",
-            github_raw:
-                "https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js",
-        },
-        changelog: [
-            {title: "Improvements", type: "improved", items: [
-                "Bugs fixed",
-            ]}
-        ],
-        main: "index.js",
-    };
+    const config = {"info":{"name":"SendTimestamps","version":"1.1.10","description":"Use Discord's latest feature of using timestamps in your messages easily.","author":"Taimoor","authorId":"220161488516546561","authorLink":"https://github.com/Taimoor-Tariq","source":"https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js","github_raw":"https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js","donate":"https://ko-fi.com/TaimoorTariq","authors":[{"name":"Taimoor","discord_id":"220161488516546561"}]},"changelog":[{"title":"Fixed","items":["Plugin works again!!!"]},{"title":"Bugs Squashed","type":"fixed","items":["Fixed bug causing discord to crash when entering time manually."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -340,6 +318,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { background-image: url("d
                             value: `${inputTime.getHours()<10?`0${inputTime.getHours()}`:inputTime.getHours()}:${inputTime.getMinutes()<10?`0${inputTime.getMinutes()}`:inputTime.getMinutes()}`,
                             className: "timestamp-modal-custom-input",
                             onChange: (e) => {
+                                if (!e.target.value.includes(':')) return;
                                 let t = e.target.value.split(':');
                                 inputTime.setHours(t[0]);
                                 inputTime.setMinutes(t[1]);
@@ -359,8 +338,9 @@ input[type="date"]::-webkit-calendar-picker-indicator { background-image: url("d
  
             Modals.showModal( "Select Date and Time", [ dateInput, timeInput, formatInput ], {
                 confirmText: "Enter",
-                onConfirm: () => {               
-                    BdApi.findModuleByProps("ComponentDispatch").ComponentDispatch.dispatchToLastSubscribed(BdApi.findModuleByProps("ComponentActions").ComponentActions.INSERT_TEXT, {content: `<t:${Math.floor(inputTime.getTime()/1000)}:${inputFormat}> `});
+                onConfirm: () => {
+                    let ts_msg = `<t:${Math.floor(inputTime.getTime()/1000)}:${inputFormat}> `;
+                    BdApi.findModuleByProps("ComponentDispatch").ComponentDispatch.dispatch(BdApi.findModuleByProps("ComponentActions").ComponentActions.INSERT_TEXT, {content: ts_msg, plainText: ts_msg});
                 }
             });
         }
