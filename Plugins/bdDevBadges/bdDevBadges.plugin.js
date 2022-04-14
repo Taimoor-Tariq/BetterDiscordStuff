@@ -1,6 +1,6 @@
 /**
  * @name bdDevBadges
- * @version 1.0.5
+ * @version 1.0.6
  * @description Badges for BetterDiscord Plugin and Theme Developers.
  * @author Taimoor
  * @authorId 220161488516546561
@@ -34,7 +34,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {"info":{"name":"bdDevBadges","version":"1.0.5","description":"Badges for BetterDiscord Plugin and Theme Developers.","author":"Taimoor","authorId":"220161488516546561","authorLink":"https://github.com/Taimoor-Tariq","source":"https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/bdDevBadges/bdDevBadges.plugin.js","github_raw":"https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/bdDevBadges/bdDevBadges.plugin.js","donate":"https://ko-fi.com/TaimoorTariq","authors":[{"name":"Taimoor","discord_id":"220161488516546561"}]},"changelog":[{"title":"Improvements","type":"improved","items":["**Added Settings**: Added settings to enable or disable badges showing in specific areas."]}],"main":"index.js"};
+    const config = {"info":{"name":"bdDevBadges","version":"1.0.6","description":"Badges for BetterDiscord Plugin and Theme Developers.","author":"Taimoor","authorId":"220161488516546561","authorLink":"https://github.com/Taimoor-Tariq","source":"https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/bdDevBadges/bdDevBadges.plugin.js","github_raw":"https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/bdDevBadges/bdDevBadges.plugin.js","donate":"https://ko-fi.com/TaimoorTariq","authors":[{"name":"Taimoor","discord_id":"220161488516546561"}]},"changelog":[{"title":"Improvements","type":"improved","items":["**Added Settings**: Added settings to enable or disable badges showing in specific areas."]}],"main":"index.js"};
 
     return !global.ZeresPluginLibrary ? class {
         constructor() {this._config = config;}
@@ -208,7 +208,7 @@ div[aria-label="User Profile Modal"] .bd-dev-badge-tooltip { top: -23px; }
         async getDevelopers() {
             return new Promise((resolve) => {
                 request(
-                    "https://api.betterdiscord.app/latest/store/addons",
+                    "https://api.betterdiscord.app/v1/store/addons",
                     (err, res, body) => {
                         if (err) return Logger.err(err);
                         let data = JSON.parse(body),
