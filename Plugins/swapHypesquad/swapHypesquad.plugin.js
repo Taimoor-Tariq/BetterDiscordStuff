@@ -1,12 +1,12 @@
 /**
- * @name swapHypesquad
+ * @name SwapHypesquad
  * @version 1.0.0
  * @description Swap Hypersquad Houses using slash commands
  * @author Taimoor
  * @authorId 220161488516546561
  * @authorLink https://github.com/Taimoor-Tariq
- * @source https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/swapHypesquad/swapHypesquad.plugin.js
- * @github_raw https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/swapHypesquad/swapHypesquad.plugin.js
+ * @source https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SwapHypesquad/SwapHypesquad.plugin.js
+ * @github_raw https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SwapHypesquad/SwapHypesquad.plugin.js
  * @donate https://ko-fi.com/TaimoorTariq
  */
 /*@cc_on
@@ -34,7 +34,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = { info: { name: 'swapHypesquad', version: '1.0.0', description: 'Swap Hypersquad Houses using slash commands', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/swapHypesquad/swapHypesquad.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/swapHypesquad/swapHypesquad.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] }, main: 'index.js' };
+    const config = { info: { name: 'SwapHypesquad', version: '1.0.0', description: 'Swap Hypersquad Houses using slash commands', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SwapHypesquad/SwapHypesquad.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SwapHypesquad/SwapHypesquad.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] }, main: 'index.js' };
 
     return !global.ZeresPluginLibrary
         ? class {
@@ -82,7 +82,7 @@ module.exports = (() => {
 }
 `;
 
-                  return class swapHypesquad extends Plugin {
+                  return class SwapHypesquad extends Plugin {
                       constructor() {
                           super();
 
