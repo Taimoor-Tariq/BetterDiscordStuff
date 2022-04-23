@@ -140,47 +140,48 @@ module.exports = (() => {
                       }
 
                       patchCommand() {
-                          Patcher.after(BdApi.findModuleByProps('BUILT_IN_COMMANDS'), 'getBuiltInCommands', (_, __, ret) => {
-                              ret.push({
-                                  id: 'bd-hypesquad-swap',
-                                  applicationId: '-1',
-                                  name: 'hypesquad',
-                                  displayName: 'hypesquad',
-                                  description: 'Change your Hypesquad',
-                                  displayDescription: 'Change your Hypesquad',
-                                  inputType: 0,
-                                  options: [
-                                      {
-                                          name: 'squad',
-                                          displayName: 'squad',
-                                          description: 'Name of the Hypesquad to join',
-                                          displayDescription: 'Name of the Hypesquad to join',
-                                          required: true,
-                                          type: 3,
-                                          choices: [
-                                              {
-                                                  name: 'Bravery',
-                                                  displayName: 'Bravery',
-                                                  value: 'HOUSE_1',
-                                              },
-                                              {
-                                                  name: 'Brilliance',
-                                                  displayName: 'Brilliance',
-                                                  value: 'HOUSE_2',
-                                              },
-                                              {
-                                                  name: 'Balance',
-                                                  displayName: 'Balance',
-                                                  value: 'HOUSE_3',
-                                              },
-                                          ],
+                          Patcher.after(BdApi.findModuleByProps('BUILT_IN_COMMANDS'), 'getBuiltInCommands', (_, type, ret) => {
+                              if (type[0] == 1)
+                                  ret.push({
+                                      id: 'bd-hypesquad-swap',
+                                      applicationId: '-1',
+                                      name: 'hypesquad',
+                                      displayName: 'hypesquad',
+                                      description: 'Change your Hypesquad',
+                                      displayDescription: 'Change your Hypesquad',
+                                      inputType: 0,
+                                      options: [
+                                          {
+                                              name: 'squad',
+                                              displayName: 'squad',
+                                              description: 'Name of the Hypesquad to join',
+                                              displayDescription: 'Name of the Hypesquad to join',
+                                              required: true,
+                                              type: 3,
+                                              choices: [
+                                                  {
+                                                      name: 'Bravery',
+                                                      displayName: 'Bravery',
+                                                      value: 'HOUSE_1',
+                                                  },
+                                                  {
+                                                      name: 'Brilliance',
+                                                      displayName: 'Brilliance',
+                                                      value: 'HOUSE_2',
+                                                  },
+                                                  {
+                                                      name: 'Balance',
+                                                      displayName: 'Balance',
+                                                      value: 'HOUSE_3',
+                                                  },
+                                              ],
+                                          },
+                                      ],
+                                      type: 1,
+                                      execute: (cmd) => {
+                                          this.switchSquad(cmd[0].value);
                                       },
-                                  ],
-                                  type: 1,
-                                  execute: (cmd) => {
-                                      this.switchSquad(cmd[0].value);
-                                  },
-                              });
+                                  });
                           });
                       }
                   };
