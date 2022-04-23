@@ -1,12 +1,12 @@
 /**
- * @name SwapHypesquad
+ * @name SwitchHypesquad
  * @version 1.0.0
- * @description Swap Hypersquad Houses using slash commands
+ * @description Switch Hypersquad Houses using slash command
  * @author Taimoor
  * @authorId 220161488516546561
  * @authorLink https://github.com/Taimoor-Tariq
- * @source https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SwapHypesquad/SwapHypesquad.plugin.js
- * @github_raw https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SwapHypesquad/SwapHypesquad.plugin.js
+ * @source https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SwitchHypesquad/SwitchHypesquad.plugin.js
+ * @github_raw https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SwitchHypesquad/SwitchHypesquad.plugin.js
  * @donate https://ko-fi.com/TaimoorTariq
  */
 /*@cc_on
@@ -34,7 +34,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = { info: { name: 'SwapHypesquad', version: '1.0.0', description: 'Swap Hypersquad Houses using slash commands', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SwapHypesquad/SwapHypesquad.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SwapHypesquad/SwapHypesquad.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] }, main: 'index.js' };
+    const config = { info: { name: 'SwitchHypesquad', version: '1.0.0', description: 'Switch Hypersquad Houses using slash command', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SwitchHypesquad/SwitchHypesquad.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SwitchHypesquad/SwitchHypesquad.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] }, main: 'index.js' };
 
     return !global.ZeresPluginLibrary
         ? class {
@@ -82,7 +82,7 @@ module.exports = (() => {
 }
 `;
 
-                  return class SwapHypesquad extends Plugin {
+                  return class SwitchHypesquad extends Plugin {
                       constructor() {
                           super();
 
@@ -114,17 +114,17 @@ module.exports = (() => {
                                   .then(() => {
                                       this.cooldown = 60;
                                       this.updateCooldown();
-                                      Modals.showModal('Hypesquad Swap', React.createElement('p', { className: 'hypesquad-swap-modal' }, `You have joined the ${this.houses[houseID]} Hypesquad.`), {
+                                      Modals.showModal('Hypesquad Switch', React.createElement('p', { className: 'hypesquad-swap-modal' }, `You have joined the ${this.houses[houseID]} Hypesquad.`), {
                                           cancelText: null,
                                       });
                                   })
                                   .catch(() => {
-                                      Modals.showModal('Hypesquad Swap', React.createElement('p', { className: 'hypesquad-swap-modal' }, 'Something went wrong. Please try again later.'), {
+                                      Modals.showModal('Hypesquad Switch', React.createElement('p', { className: 'hypesquad-swap-modal' }, 'Something went wrong. Please try again later.'), {
                                           cancelText: null,
                                       });
                                   });
                           } else {
-                              Modals.showModal('Hypesquad Swap', React.createElement('p', { className: 'hypesquad-swap-modal' }, `You need to wait ${this.cooldown} seconds before you can switch your Hypesquad again.`), {
+                              Modals.showModal('Hypesquad Switch', React.createElement('p', { className: 'hypesquad-swap-modal' }, `You need to wait ${this.cooldown} seconds before you can switch your Hypesquad again.`), {
                                   cancelText: null,
                               });
                           }
