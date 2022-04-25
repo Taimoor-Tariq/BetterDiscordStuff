@@ -6,6 +6,7 @@ A collection of all my Plugins and Themes.
 - [SendTimestamps](https://github.com/Taimoor-Tariq/BetterDiscordStuff/tree/main/Plugins/SendTimestamps) - Use Discord's feature of using timestamps in your messages easily.
 - [VoiceUtilities](https://github.com/Taimoor-Tariq/BetterDiscordStuff/tree/main/Plugins/VoiceUtilities) - Add useful features to the voice context menu.
 - [SwitchHypesquad](https://github.com/Taimoor-Tariq/BetterDiscordStuff/tree/main/Plugins/SwitchHypesquad) - Switch Hypersquad Houses using slash command.
+- [ImprovedCodeBlocks](https://github.com/Taimoor-Tariq/BetterDiscordStuff/tree/main/Plugins/ImprovedCodeBlocks) - Improve code blocks with syntax highlighting and more!
 
 ## Themes
 - Coming Soon!
