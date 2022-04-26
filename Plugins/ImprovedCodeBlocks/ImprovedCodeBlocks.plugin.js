@@ -133,6 +133,9 @@ module.exports = (() => {
     display: flex;
     justify-content: space-between;
 }
+.embedWrapper-1MtIDg .code-block-header {
+    max-width: calc(100% - 0.1rem);
+}
 .code-block-copy-button {
     height: 2rem;
     width: 3rem;
