@@ -87,6 +87,7 @@ module.exports = (() => {
                       WebpackModules,
                       DiscordModules: { React, MessageActions },
                   } = Api;
+                  const PermissionStore = BdApi.findModuleByProps('Permissions', 'ActivityTypes').Permissions;
                   const css = `.timestamp-button {
     margin-top: 4px;
     max-height: 40px;
@@ -116,7 +117,6 @@ module.exports = (() => {
 .channel-attach-button .attachButton-_ACFSu {
     padding: 10px 4px;
 }
-
 
 .timestamp-input-label {
     font-size: 16px;
@@ -162,7 +162,12 @@ input[type='time']::-webkit-calendar-picker-indicator {
 }
 input[type='date']::-webkit-calendar-picker-indicator {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z'/%3E%3C/svg%3E");
-}`;
+}
+`;
+
+                  const canSendMessages = (channelId) => {
+                      return BdApi.findModuleByProps('getChannelPermissions').canWithPartialContext(PermissionStore.SEND_MESSAGES, channelId);
+                  };
 
                   return class SendTimestamp extends Plugin {
                       constructor() {
@@ -408,7 +413,9 @@ input[type='date']::-webkit-calendar-picker-indicator {
                           );
 
                           Patcher.before(ChannelTextAreaContainer, 'render', (_, [props]) => {
-                              if (!this.settings.buttonOnRight) {
+                              const { channel } = props;
+
+                              if (!this.settings.buttonOnRight && canSendMessages(channel.id)) {
                                   if (!!props.renderAttachButton && props.renderAttachButton.length == 1) {
                                       this.forceOnRight = false;
                                       let attachButton = props.renderAttachButton();
@@ -426,16 +433,6 @@ input[type='date']::-webkit-calendar-picker-indicator {
                               this.settings.chatButtonsLength = ret?.props?.children?.length + 1 || 1;
                               if (this.settings.buttonOnRight || this.forceOnRight) ret?.props?.children.splice(this.settings.buttonIndex, 0, button).join();
                           });
-                      }
-
-                      patchChangeLogButton(pluginCard) {
-                          const controls = pluginCard.querySelector('.bd-controls');
-                          const changeLogButton = DOMTools.createElement('<button class="bd-button bd-addon-button bd-changelog-button"> <svg viewBox="0 0 24 24" fill="#FFFFFF" style="width: 20px; height: 20px;"> <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z" /> </svg> </button>');
-                          changeLogButton.addEventListener('click', () => {
-                              Modals.showChangelogModal(this.getName(), this.getVersion(), this._config.changelog);
-                          });
-
-                          if (!controls.querySelector('.bd-changelog-button')) controls.prepend(changeLogButton);
                       }
 
                       patchMessageReplace() {
@@ -472,6 +469,18 @@ input[type='date']::-webkit-calendar-picker-indicator {
 
                               props.content = content;
                           });
+                      }
+
+                      patchChangeLogButton(pluginCard) {
+                          const controls = pluginCard.querySelector('.bd-controls');
+                          const changeLogButton = DOMTools.createElement(
+                              `<button class="bd-button bd-addon-button bd-changelog-button" style"position: relative;"> <style> .bd-changelog-button-tooltip { visibility: hidden; position: absolute; background-color: var(--background-floating); box-shadow: var(--elevation-high); color: var(--text-normal); border-radius: 5px; font-size: 14px; line-height: 16px; white-space: nowrap; font-weight: 500; padding: 8px 12px; z-index: 999999; transform: translate(0, -125%); } .bd-changelog-button-tooltip:after { content: ''; position: absolute; top: 100%; left: 50%; margin-left: -3px; border-width: 3x; border-style: solid; border-color: var(--background-floating) transparent transparent transparent; } .bd-changelog-button:hover .bd-changelog-button-tooltip { visibility: visible; } </style> <span class="bd-changelog-button-tooltip">Changelog</span> <svg viewBox="0 0 24 24" fill="#FFFFFF" style="width: 20px; height: 20px;"> <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z" /> </svg> </button>`
+                          );
+                          changeLogButton.addEventListener('click', () => {
+                              Modals.showChangelogModal(this.getName(), this.getVersion(), this._config.changelog);
+                          });
+
+                          if (!controls.querySelector('.bd-changelog-button') && this._config.changelog?.length > 0) controls.prepend(changeLogButton);
                       }
 
                       observer(e) {
