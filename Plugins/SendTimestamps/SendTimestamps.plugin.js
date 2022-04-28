@@ -1,6 +1,6 @@
 /**
  * @name SendTimestamps
- * @version 2.0.0
+ * @version 2.0.1
  * @description Send timestamps in your messages easily by adding them in {{...}} or using the button.
  * @author Taimoor
  * @authorId 220161488516546561
@@ -35,7 +35,7 @@
 
 module.exports = (() => {
     const config = {
-        info: { name: 'SendTimestamps', version: '2.0.0', description: 'Send timestamps in your messages easily by adding them in {{...}} or using the button.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] },
+        info: { name: 'SendTimestamps', version: '2.0.1', description: 'Send timestamps in your messages easily by adding them in {{...}} or using the button.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] },
         changelog: [
             { title: 'Version 2.0', items: ['Rewrote the entire plugin fixing a lot of bugs and adding new stuff!!!'] },
             { title: "What's New", type: 'improved', items: ['You can now automatically convert Dates and Times when sending a message. Just put in in between **{{** and **}}**', "Improved the way the button is rendered making sure it's rendered when it's supposed to."] },
@@ -166,7 +166,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
 `;
 
                   const canSendMessages = (channelId) => {
-                      return BdApi.findModuleByProps('getChannelPermissions').canWithPartialContext(PermissionStore.SEND_MESSAGES, channelId);
+                      return BdApi.findModuleByProps('getChannelPermissions').canWithPartialContext(PermissionStore.SEND_MESSAGES, { channelId });
                   };
 
                   return class SendTimestamp extends Plugin {
