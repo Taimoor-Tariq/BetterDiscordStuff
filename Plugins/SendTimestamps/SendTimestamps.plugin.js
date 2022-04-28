@@ -1,6 +1,6 @@
 /**
  * @name SendTimestamps
- * @version 2.0.1
+ * @version 2.0.2
  * @description Send timestamps in your messages easily by adding them in {{...}} or using the button.
  * @author Taimoor
  * @authorId 220161488516546561
@@ -34,15 +34,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {
-        info: { name: 'SendTimestamps', version: '2.0.1', description: 'Send timestamps in your messages easily by adding them in {{...}} or using the button.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] },
-        changelog: [
-            { title: 'Version 2.0', items: ['Rewrote the entire plugin fixing a lot of bugs and adding new stuff!!!'] },
-            { title: "What's New", type: 'improved', items: ['You can now automatically convert Dates and Times when sending a message. Just put in in between **{{** and **}}**', "Improved the way the button is rendered making sure it's rendered when it's supposed to."] },
-            { title: "What's Coming", type: 'progress', items: ['Localization for different languages', 'Improved Settings'] },
-        ],
-        main: 'index.js',
-    };
+    const config = { info: { name: 'SendTimestamps', version: '2.0.2', description: 'Send timestamps in your messages easily by adding them in {{...}} or using the button.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] }, changelog: [{ title: 'Bugs Fixed', type: 'improved', items: ['Fixed bug causing the button to not show in DMs', 'Fixed bug not entering the relative timestamp correctly'] }], main: 'index.js' };
 
     return !global.ZeresPluginLibrary
         ? class {
@@ -292,7 +284,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
                                           { value: 'D', label: time.toLocaleString(undefined, { dateStyle: 'long' }).replace(' at', '') },
                                           { value: 'f', label: time.toLocaleString(undefined, { dateStyle: 'long', timeStyle: 'short' }).replace(' at', '') },
                                           { value: 'F', label: time.toLocaleString(undefined, { dateStyle: 'full', timeStyle: 'short' }).replace(' at', '') },
-                                          { value: 'r', label: getRelativeTime(time) },
+                                          { value: 'R', label: getRelativeTime(time) },
                                       ],
                                   });
                               }
@@ -415,7 +407,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
                           Patcher.before(ChannelTextAreaContainer, 'render', (_, [props]) => {
                               const { channel } = props;
 
-                              if (!this.settings.buttonOnRight && canSendMessages(channel.id)) {
+                              if (!this.settings.buttonOnRight && (canSendMessages(channel.id) || channel.type === 1)) {
                                   if (!!props.renderAttachButton && props.renderAttachButton.length == 1) {
                                       this.forceOnRight = false;
                                       let attachButton = props.renderAttachButton();
@@ -429,9 +421,11 @@ input[type='date']::-webkit-calendar-picker-indicator {
                               }
                           });
 
-                          Patcher.after(ChannelTextAreaButtons, 'type', (_, args, ret) => {
+                          Patcher.after(ChannelTextAreaButtons, 'type', (_, [props], ret) => {
+                              const { channel } = props;
                               this.settings.chatButtonsLength = ret?.props?.children?.length + 1 || 1;
-                              if (this.settings.buttonOnRight || this.forceOnRight) ret?.props?.children.splice(this.settings.buttonIndex, 0, button).join();
+
+                              if ((this.settings.buttonOnRight || this.forceOnRight) && (canSendMessages(channel.id) || channel.type === 1)) ret?.props?.children.splice(this.settings.buttonIndex, 0, button).join();
                           });
                       }
 
