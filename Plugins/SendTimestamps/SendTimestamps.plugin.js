@@ -1,6 +1,6 @@
 /**
  * @name SendTimestamps
- * @version 2.0.2
+ * @version 2.0.3
  * @description Send timestamps in your messages easily by adding them in {{...}} or using the button.
  * @author Taimoor
  * @authorId 220161488516546561
@@ -34,7 +34,14 @@
 @else@*/
 
 module.exports = (() => {
-    const config = { info: { name: 'SendTimestamps', version: '2.0.2', description: 'Send timestamps in your messages easily by adding them in {{...}} or using the button.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] }, changelog: [{ title: 'Bugs Fixed', type: 'improved', items: ['Fixed bug causing the button to not show in DMs', 'Fixed bug not entering the relative timestamp correctly'] }], main: 'index.js' };
+    const config = {
+        info: { name: 'SendTimestamps', version: '2.0.3', description: 'Send timestamps in your messages easily by adding them in {{...}} or using the button.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] },
+        changelog: [
+            { title: 'New Settings', items: ['Remade the settings panel, its much faster and less buggy.', 'Added a new setting to show add timestamp option in tha attach menu (when you click on the upload button).'] },
+            { title: 'Bugs Fixed', type: 'improved', items: ['Fixed bug causing the timestamp to be entered twice when editing messages.'] },
+        ],
+        main: 'index.js',
+    };
 
     return !global.ZeresPluginLibrary
         ? class {
@@ -77,8 +84,10 @@ module.exports = (() => {
                       Modals,
                       DOMTools,
                       WebpackModules,
-                      DiscordModules: { React, MessageActions },
+                      DiscordModules: { React, MessageActions, Slider, Dropdown, SwitchRow },
                   } = Api;
+                  const ComponentDispatch = WebpackModules.getByProps('ComponentDispatch').ComponentDispatch;
+                  const ComponentActions = WebpackModules.getByProps('ComponentActions').ComponentActions;
                   const PermissionStore = BdApi.findModuleByProps('Permissions', 'ActivityTypes').Permissions;
                   const css = `.timestamp-button {
     margin-top: 4px;
@@ -157,6 +166,8 @@ input[type='date']::-webkit-calendar-picker-indicator {
 }
 `;
 
+                  const Button = WebpackModules.getByProps('Button').Button;
+
                   const canSendMessages = (channelId) => {
                       return BdApi.findModuleByProps('getChannelPermissions').canWithPartialContext(PermissionStore.SEND_MESSAGES, { channelId });
                   };
@@ -171,10 +182,10 @@ input[type='date']::-webkit-calendar-picker-indicator {
                               chatButtonsLength: 1,
                               timestampFormat: 'f',
                               replaceInMessages: true,
+                              showInAttachMenu: false,
                           };
 
                           this.forceOnRight = false;
-                          this.dispatchToChannelArea = true;
                       }
 
                       onStart() {
@@ -189,33 +200,137 @@ input[type='date']::-webkit-calendar-picker-indicator {
                       }
 
                       getSettingsPanel() {
-                          return Settings.SettingPanel.build(
-                              this.saveSettings.bind(this),
-                              new Settings.Switch('Replace on message send', 'Enabling this option will convert all the date/time in you message before you send it. Example: "{{dec 2 2020}} or {{10:40am}}". (your last used fromat from the modal is used)', this.settings.replaceInMessages, (e) => {
-                                  this.settings.replaceInMessages = e;
-                              }),
-                              new Settings.Switch('Button on right', null, this.settings.buttonOnRight, (e) => {
-                                  this.settings.buttonOnRight = e;
-                              }),
-                              new Settings.Slider(
-                                  'Position',
-                                  'Position of the button (only works if button is on right)',
-                                  0,
-                                  this.settings.chatButtonsLength,
-                                  this.settings.buttonIndex,
-                                  (e) => {
-                                      this.settings.buttonIndex = e;
-                                  },
-                                  {
-                                      markers: Array.apply(null, Array(this.settings.chatButtonsLength)).map((_, i) => i),
-                                      stickToMarkers: true,
-                                  }
-                              )
-                          );
+                          class PluginSettings extends React.Component {
+                              constructor(props) {
+                                  super(props);
+                                  this.plugin = this.props.plugin;
+                                  this.state = this.plugin.settings;
+                              }
+
+                              componentDidUpdate() {
+                                  this.plugin.saveSettings();
+                              }
+
+                              render() {
+                                  const ReplaceInMessages = React.createElement(
+                                      SwitchRow,
+                                      {
+                                          value: this.state.replaceInMessages,
+                                          onChange: (e) => {
+                                              this.plugin.settings.replaceInMessages = e;
+                                              this.setState({ replaceInMessages: e });
+                                          },
+                                          note: 'Enabling this option will convert all the date/time in you message before you send it. Example: "{{dec 2 2020}} or {{10:40am}}". (your last used fromat from the modal is used)',
+                                      },
+                                      'Replace on message send'
+                                  );
+
+                                  const ShowInAttachMenu = React.createElement('div', {
+                                      children: [
+                                          React.createElement(
+                                              'span',
+                                              {
+                                                  className: 'title-2dsDLn',
+                                                  style: {
+                                                      marginTop: '-0.5rem',
+                                                      marginBottom: '0.5rem',
+                                                  },
+                                              },
+                                              'Button Location'
+                                          ),
+                                          React.createElement('div', {
+                                              style: {
+                                                  display: 'flex',
+                                                  gap: '0.5rem',
+                                              },
+                                              children: [
+                                                  React.createElement(
+                                                      Button,
+                                                      {
+                                                          className: `${this.state.showInAttachMenu ? '' : Button.Colors.TRANSPARENT}`,
+                                                          onClick: () => {
+                                                              this.plugin.settings.showInAttachMenu = true;
+                                                              this.setState({ showInAttachMenu: true });
+                                                          },
+                                                      },
+                                                      'In attach menu'
+                                                  ),
+                                                  React.createElement(
+                                                      Button,
+                                                      {
+                                                          className: `${this.state.showInAttachMenu ? Button.Colors.TRANSPARENT : ''}`,
+                                                          onClick: () => {
+                                                              this.plugin.settings.showInAttachMenu = false;
+                                                              this.setState({ showInAttachMenu: false });
+                                                          },
+                                                      },
+                                                      'In chatbar'
+                                                  ),
+                                              ],
+                                          }),
+                                          React.createElement('div', {
+                                              className: 'divider-_0um2u dividerDefault-3C2-ws',
+                                              style: {
+                                                  marginBottom: '1rem',
+                                              },
+                                          }),
+                                      ],
+                                  });
+
+                                  const ButtonInChat = React.createElement('div', {
+                                      style: {
+                                          display: `${this.state.showInAttachMenu ? 'none' : 'block'}`,
+                                      },
+                                      children: [
+                                          React.createElement(
+                                              SwitchRow,
+                                              {
+                                                  value: this.state.buttonOnRight,
+                                                  onChange: (e) => {
+                                                      this.plugin.settings.buttonOnRight = e;
+                                                      this.setState({ buttonOnRight: e });
+                                                  },
+                                                  note: 'Enabling this option will put the button on the right side of the textarea.',
+                                              },
+                                              'Button on right'
+                                          ),
+                                          React.createElement(
+                                              'span',
+                                              {
+                                                  className: 'title-2dsDLn',
+                                                  style: {
+                                                      marginTop: '-0.5rem',
+                                                      marginBottom: '1.5rem',
+                                                  },
+                                              },
+                                              'Button Postion from left (only works if button is on right)'
+                                          ),
+                                          React.createElement(Slider, {
+                                              style: {
+                                                  cursor: 'pointer',
+                                              },
+                                              initialValue: this.state.buttonIndex + 1,
+                                              min: 0,
+                                              max: this.state.chatButtonsLength - 1,
+                                              onValueChange: (e) => {
+                                                  this.plugin.settings.buttonIndex = e - 1;
+                                                  this.setState({ buttonIndex: e - 1 });
+                                              },
+                                              markers: Array.apply(null, Array(this.state.chatButtonsLength)).map((_, i) => i + 1),
+                                              stickToMarkers: true,
+                                              disabled: !this.state.buttonOnRight,
+                                          }),
+                                      ],
+                                  });
+
+                                  return React.createElement('div', { children: [ReplaceInMessages, ShowInAttachMenu, ButtonInChat] });
+                              }
+                          }
+
+                          return React.createElement(PluginSettings, { plugin: this });
                       }
 
                       showTimestampModal() {
-                          const Dropdown = WebpackModules.getByProps('SingleSelect').SingleSelect;
                           const inputFormat = this.settings.timestampFormat;
 
                           const getRelativeTime = (timestamp) => {
@@ -372,8 +487,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
                               onConfirm: () => {
                                   let ts_msg = `<t:${Math.floor(inputTimestamp.getTime() / 1000)}:${this.settings.timestampFormat}> `;
 
-                                  if (this.dispatchToChannelArea) BdApi.findModuleByProps('ComponentDispatch').ComponentDispatch.dispatch('INSERT_TEXT', { content: ts_msg, plainText: ts_msg });
-                                  else BdApi.findModuleByProps('ComponentDispatch').ComponentDispatch.dispatch('INSERT_TEXT', { content: ts_msg, plainText: ts_msg });
+                                  ComponentDispatch.dispatchToLastSubscribed(ComponentActions.INSERT_TEXT, { content: ts_msg, plainText: ts_msg });
                               },
                           });
                       }
@@ -405,9 +519,10 @@ input[type='date']::-webkit-calendar-picker-indicator {
                           );
 
                           Patcher.before(ChannelTextAreaContainer, 'render', (_, [props]) => {
+                              if (this.settings.showInAttachMenu) document.querySelector('.timestamp-button')?.remove();
                               const { channel } = props;
 
-                              if (!this.settings.buttonOnRight && (canSendMessages(channel.id) || channel.type === 1)) {
+                              if (!this.settings.buttonOnRight && (canSendMessages(channel.id) || channel.type === 1) && !this.settings.showInAttachMenu) {
                                   if (!!props.renderAttachButton && props.renderAttachButton.length == 1) {
                                       this.forceOnRight = false;
                                       let attachButton = props.renderAttachButton();
@@ -422,10 +537,11 @@ input[type='date']::-webkit-calendar-picker-indicator {
                           });
 
                           Patcher.after(ChannelTextAreaButtons, 'type', (_, [props], ret) => {
+                              if (this.settings.showInAttachMenu) document.querySelector('.timestamp-button')?.remove();
                               const { channel } = props;
                               this.settings.chatButtonsLength = ret?.props?.children?.length + 1 || 1;
 
-                              if ((this.settings.buttonOnRight || this.forceOnRight) && (canSendMessages(channel.id) || channel.type === 1)) ret?.props?.children.splice(this.settings.buttonIndex, 0, button).join();
+                              if ((this.settings.buttonOnRight || this.forceOnRight) && (canSendMessages(channel.id) || channel.type === 1) && !this.settings.showInAttachMenu) ret?.props?.children.splice(this.settings.buttonIndex, 0, button).join();
                           });
                       }
 
@@ -465,6 +581,20 @@ input[type='date']::-webkit-calendar-picker-indicator {
                           });
                       }
 
+                      patchAttachMenu(attachMenu) {
+                          const menuOption = DOMTools.createElement(`<div class="item-1OdjEX labelContainer-2vJzYL colorDefault-CDqZdO" role="menuitem" id="channel-attach-TIMESTAMP" tabindex="-1" data-menu-item="true"> <div class="label-2gNW3x"> <div class="optionLabel-1o-h-l"> <svg class="optionIcon-1Ft8w0" aria-hidden="false" width="16" height="16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"> <path fill="currentColor" d="M256,8C119,8,8,119,8,256S119,504,256,504,504,393,504,256,393,8,256,8Zm92.49,313h0l-20,25a16,16,0,0,1-22.49,2.5h0l-67-49.72a40,40,0,0,1-15-31.23V112a16,16,0,0,1,16-16h32a16,16,0,0,1,16,16V256l58,42.5A16,16,0,0,1,348.49,321Z"></path> </svg> <div class="optionName-1ebPjH">Add Timestamp</div> </div> </div> </div>`);
+
+                          menuOption.addEventListener('mouseenter', () => {
+                              for (let i = 0; i < attachMenu.children.length; i++) attachMenu.children[i].classList.remove('focused-3qFvc8');
+                          });
+                          menuOption.addEventListener('click', () => {
+                              this.showTimestampModal();
+                              attachMenu.remove();
+                          });
+
+                          if (!attachMenu?.querySelector('#channel-attach-TIMESTAMP')) attachMenu?.prepend(menuOption);
+                      }
+
                       patchChangeLogButton(pluginCard) {
                           const controls = pluginCard.querySelector('.bd-controls');
                           const changeLogButton = DOMTools.createElement(
@@ -481,10 +611,8 @@ input[type='date']::-webkit-calendar-picker-indicator {
                           const pluginCard = e.target.querySelector(`#${this.getName()}-card`);
                           if (pluginCard) this.patchChangeLogButton(pluginCard);
 
-                          if (document.activeElement.getAttribute('role') == 'textbox') {
-                              if (!!document.activeElement.getAttribute('aria-label')) this.dispatchToChannelArea = true;
-                              else this.dispatchToChannelArea = false;
-                          }
+                          const attachMenu = e.target.querySelector('#channel-attach');
+                          if (attachMenu && this.settings.showInAttachMenu) this.patchAttachMenu(attachMenu.querySelector('div'));
                       }
                   };
               };
