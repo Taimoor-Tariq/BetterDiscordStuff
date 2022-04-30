@@ -1,6 +1,6 @@
 /**
  * @name SendTimestamps
- * @version 2.0.3
+ * @version 2.1.1
  * @description Send timestamps in your messages easily by adding them in {{...}} or using the button.
  * @author Taimoor
  * @authorId 220161488516546561
@@ -34,14 +34,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {
-        info: { name: 'SendTimestamps', version: '2.0.3', description: 'Send timestamps in your messages easily by adding them in {{...}} or using the button.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] },
-        changelog: [
-            { title: 'New Settings', items: ['Remade the settings panel, its much faster and less buggy.', 'Added a new setting to show add timestamp option in tha attach menu (when you click on the upload button).'] },
-            { title: 'Bugs Fixed', type: 'improved', items: ['Fixed bug causing the timestamp to be entered twice when editing messages.'] },
-        ],
-        main: 'index.js',
-    };
+    const config = { info: { name: 'SendTimestamps', version: '2.1.1', description: 'Send timestamps in your messages easily by adding them in {{...}} or using the button.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] }, changelog: [{ title: 'Improvements!', type: 'improved', items: ['You can now select what fromat to send the timestamp in before sending when using `{{...}}`.'] }], main: 'index.js' };
 
     return !global.ZeresPluginLibrary
         ? class {
@@ -164,7 +157,36 @@ input[type='time']::-webkit-calendar-picker-indicator {
 input[type='date']::-webkit-calendar-picker-indicator {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z'/%3E%3C/svg%3E");
 }
-`;
+
+.timestamp-formats-selector {
+    position: absolute;
+    bottom: 3.8rem;
+    left: 2rem;
+    width: 90%;
+    background-color: var(--background-tertiary);
+    box-shadow: var(--elevation-high);
+    color: var(--text-normal);
+    border-radius: 5px;
+    padding: 8px 12px;
+}
+
+.timestamp-formats-selects {
+    display: flex;
+    flex-direction: row;
+    padding: 8px 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.timestamp-formats-selects select {
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 1px solid var(--background-secondary);
+    background-color: var(--channeltextarea-background);
+    color: var(--text-normal);
+    font-size: 1rem;
+    flex-grow: 1;
+}`;
 
                   const Button = WebpackModules.getByProps('Button').Button;
 
@@ -186,6 +208,10 @@ input[type='date']::-webkit-calendar-picker-indicator {
                           };
 
                           this.forceOnRight = false;
+
+                          this.sendFomrmatOptions = {
+                              0: 'F',
+                          };
                       }
 
                       onStart() {
@@ -546,37 +572,182 @@ input[type='date']::-webkit-calendar-picker-indicator {
                       }
 
                       patchMessageReplace() {
+                          const ChannelTextAreaContainer = WebpackModules.find((m) => m?.type?.render?.displayName === 'ChannelTextAreaContainer')?.type;
+
+                          class TimestampFomratsSelector extends React.Component {
+                              constructor(props) {
+                                  super(props);
+                              }
+
+                              componentDidMount() {
+                                  this.props.timestamps.forEach((ts, key) => {
+                                      this.props.onChange({
+                                          key,
+                                          value: `<t:${ts.timestamp}:F>`,
+                                      });
+                                  });
+                              }
+
+                              render() {
+                                  const timestampSelects = this.props.timestamps.map((ts, key) => {
+                                      return React.createElement('div', {
+                                          children: [
+                                              React.createElement(
+                                                  'span',
+                                                  {
+                                                      style: {
+                                                          fontWeight: '500',
+                                                      },
+                                                  },
+                                                  `${key + 1}: `
+                                              ),
+                                              React.createElement(
+                                                  'select',
+                                                  {
+                                                      className: 'select-timestamp',
+                                                      defaultValue: 'F',
+                                                      onChange: (e) => {
+                                                          this.props.onChange({ key, value: `<t:${ts.timestamp}:${e.target.value}>` });
+                                                      },
+                                                      value: ts.value,
+                                                  },
+                                                  ts.options.map((option) => {
+                                                      return React.createElement(
+                                                          'option',
+                                                          {
+                                                              value: option.value,
+                                                          },
+                                                          option.label
+                                                      );
+                                                  })
+                                              ),
+                                          ],
+                                      });
+                                  });
+
+                                  return React.createElement('div', {
+                                      className: 'timestamp-formats-selector',
+                                      children: [
+                                          React.createElement(
+                                              'span',
+                                              {
+                                                  style: {
+                                                      fontWeight: '700',
+                                                      padding: '8px 12px',
+                                                      fontSize: '1.2rem',
+                                                  },
+                                              },
+                                              'Timestamp Formats: '
+                                          ),
+                                          React.createElement('div', {
+                                              className: 'timestamp-formats-selects',
+                                              children: timestampSelects,
+                                          }),
+                                      ],
+                                  });
+                              }
+                          }
+
+                          const getTimestamp = (str) => {
+                              const d = Date.parse(str) / 1000;
+
+                              if (isNaN(d)) {
+                                  const timestring = str.match(/\b(24:00|2[0-3]:\d\d|[01]?\d((:\d\d)( ?(a|p)m?)?| ?(a|p)m?))\b/gi);
+                                  if (timestring) {
+                                      const time = timestring[0].split(':');
+                                      const minutes = parseInt(time[1]);
+                                      const ampm = time[1]?.match(/[a|p]m?/i);
+                                      let hours = parseInt(time[0]);
+
+                                      if (ampm) ampm[0].toLowerCase() === 'a' || ampm[0].toLowerCase() === 'am' ? (hours = hours === 12 ? 0 : hours) : (hours = hours === 12 ? 12 : hours + 12);
+
+                                      let dt = new Date();
+                                      dt.setHours(hours);
+                                      dt.setMinutes(minutes);
+                                      dt.setSeconds(0);
+                                      dt.setMilliseconds(0);
+
+                                      return dt;
+                                  }
+                              } else str = d;
+
+                              return str;
+                          };
+
+                          const getRelativeTime = (timestamp) => {
+                              const timeElapsed = timestamp - new Date();
+                              const units = {
+                                  year: 24 * 60 * 60 * 1000 * 365,
+                                  month: (24 * 60 * 60 * 1000 * 365) / 12,
+                                  day: 24 * 60 * 60 * 1000,
+                                  hour: 60 * 60 * 1000,
+                                  minute: 60 * 1000,
+                                  second: 1000,
+                              };
+
+                              for (let u in units) if (Math.abs(timeElapsed) > units[u] || u == 'second') return new Intl.RelativeTimeFormat('en', { numeric: 'auto' }).format(Math.round(timeElapsed / units[u]), u);
+                          };
+
+                          Patcher.after(ChannelTextAreaContainer, 'render', (_, [props], ret) => {
+                              const { textValue } = props;
+                              if (!textValue) return;
+
+                              if (/\{{(.*?)\}}/g.test(textValue)) {
+                                  let timestamps = [...textValue.matchAll(/\{{(.*?)\}}/g)]
+                                      .filter((m) => m[1] != '')
+                                      .map((m) => {
+                                          let timestamp = getTimestamp(m[1]);
+                                          if (isNaN(timestamp))
+                                              return {
+                                                  timestamp: new Date().getTime() / 1000,
+                                                  timestampFormat: 'F',
+                                                  options: [{ value: 'F', label: 'Error formating this timestamp' }],
+                                              };
+
+                                          if (!(timestamp instanceof Date)) timestamp = new Date(timestamp * 1000);
+
+                                          return {
+                                              timestamp: timestamp.getTime() / 1000,
+                                              timestampFormat: this.settings.timestampFormat,
+                                              options: [
+                                                  { value: 't', label: timestamp.toLocaleString(undefined, { hour: '2-digit', minute: '2-digit' }).replace(' at', '') },
+                                                  { value: 'T', label: timestamp.toLocaleString(undefined, { timeStyle: 'medium' }).replace(' at', '') },
+                                                  { value: 'd', label: timestamp.toLocaleString(undefined, { dateStyle: 'short' }).replace(' at', '') },
+                                                  { value: 'D', label: timestamp.toLocaleString(undefined, { dateStyle: 'long' }).replace(' at', '') },
+                                                  { value: 'f', label: timestamp.toLocaleString(undefined, { dateStyle: 'long', timeStyle: 'short' }).replace(' at', '') },
+                                                  { value: 'F', label: timestamp.toLocaleString(undefined, { dateStyle: 'full', timeStyle: 'short' }).replace(' at', '') },
+                                                  { value: 'R', label: getRelativeTime(timestamp) },
+                                              ],
+                                          };
+                                      });
+
+                                  if (timestamps.length > 0)
+                                      ret.props.children.push(
+                                          React.createElement(TimestampFomratsSelector, {
+                                              timestamps,
+                                              onChange: (opts) => {
+                                                  this.sendFomrmatOptions[opts.key] = opts.value;
+                                                  console.log(this.sendFomrmatOptions);
+                                              },
+                                          })
+                                      );
+                              }
+
+                              return ret;
+                          });
+
                           Patcher.before(MessageActions, 'sendMessage', (_, [__, props], ret) => {
                               let { content } = props;
 
-                              const convetTimestring = (str) => {
-                                  const d = Date.parse(str.replace('{{', '').replace('}}', '')) / 1000;
-
-                                  if (isNaN(d)) {
-                                      const timestring = str.match(/\b(24:00|2[0-3]:\d\d|[01]?\d((:\d\d)( ?(a|p)m?)?| ?(a|p)m?))\b/gi);
-                                      if (timestring) {
-                                          const time = timestring[0].split(':');
-                                          const minutes = parseInt(time[1]);
-                                          const ampm = time[1]?.match(/[a|p]m?/i);
-                                          let hours = parseInt(time[0]);
-
-                                          if (ampm) ampm[0].toLowerCase() === 'a' || ampm[0].toLowerCase() === 'am' ? (hours = hours === 12 ? 0 : hours) : (hours = hours === 12 ? 12 : hours + 12);
-
-                                          let dt = new Date();
-                                          dt.setHours(hours);
-                                          dt.setMinutes(minutes);
-                                          dt.setSeconds(0);
-                                          dt.setMilliseconds(0);
-
-                                          return `<t:${Math.round(dt.getTime() / 1000)}:${this.settings.timestampFormat}>`;
-                                      }
-                                  } else str = `<t:${d}:${this.settings.timestampFormat}>`;
-
-                                  return str;
-                              };
-
-                              if (/\{{(.*?)\}}/g.test(content)) content = content.replace(/\{{(.*?)\}}/g, convetTimestring.bind(this));
-
+                              if (/\{{(.*?)\}}/g.test(content)) {
+                                  let timestamps = [...content.matchAll(/\{{(.*?)\}}/g)].filter((m) => m[1] != '');
+                                  let n = 0;
+                                  if (timestamps.length > 0)
+                                      content = content.replace(/\{{(.*?)\}}/g, (match, p1) => {
+                                          console.log(match, p1);
+                                          return this.sendFomrmatOptions[n++] || match;
+                                      });
+                              }
                               props.content = content;
                           });
                       }
