@@ -1,6 +1,6 @@
 /**
  * @name SendTimestamps
- * @version 2.1.2
+ * @version 2.1.3
  * @description Send timestamps in your messages easily by adding them in {{...}} or using the button.
  * @author Taimoor
  * @authorId 220161488516546561
@@ -34,7 +34,14 @@
 @else@*/
 
 module.exports = (() => {
-    const config = { info: { name: 'SendTimestamps', version: '2.1.2', description: 'Send timestamps in your messages easily by adding them in {{...}} or using the button.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] }, changelog: [{ title: 'Improvements!', type: 'improved', items: ['You can now select what fromat to send the timestamp in before sending when using `{{...}}`.', 'Fixed bug where the button hover was not working in attachmenu sometines.'] }], main: 'index.js' };
+    const config = {
+        info: { name: 'SendTimestamps', version: '2.1.3', description: 'Send timestamps in your messages easily by adding them in {{...}} or using the button.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] },
+        changelog: [
+            { title: 'v2.1.3 - Improvements and Bugs Fixes', type: 'improved', items: ['You can now just enter the hour without minutes when using the `{{...}}` method.', 'Fixed timestamp format selection covering multiline inputs'] },
+            { title: 'v2.1.2 - Improvements!', type: 'improved', items: ['You can now select what format to send the timestamp in before sending when using `{{...}}`.', 'Fixed bug where the button hover was not working in attach-menu sometines.'] },
+        ],
+        main: 'index.js',
+    };
 
     return !global.ZeresPluginLibrary
         ? class {
@@ -158,11 +165,17 @@ input[type='date']::-webkit-calendar-picker-indicator {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z'/%3E%3C/svg%3E");
 }
 
+.timestamp-formats-wrapper {
+    position: absolute;
+    top: 0;
+    width: 90%;
+}
+
 .timestamp-formats-selector {
     position: absolute;
-    bottom: 3.8rem;
+    bottom: 0;
     left: 2rem;
-    width: 90%;
+    width: 100%;
     background-color: var(--background-tertiary);
     box-shadow: var(--elevation-high);
     color: var(--text-normal);
@@ -627,22 +640,27 @@ input[type='date']::-webkit-calendar-picker-indicator {
                                   });
 
                                   return React.createElement('div', {
-                                      className: 'timestamp-formats-selector',
+                                      className: 'timestamp-formats-wrapper',
                                       children: [
-                                          React.createElement(
-                                              'span',
-                                              {
-                                                  style: {
-                                                      fontWeight: '700',
-                                                      padding: '8px 12px',
-                                                      fontSize: '1.2rem',
-                                                  },
-                                              },
-                                              'Timestamp Formats: '
-                                          ),
                                           React.createElement('div', {
-                                              className: 'timestamp-formats-selects',
-                                              children: timestampSelects,
+                                              className: 'timestamp-formats-selector',
+                                              children: [
+                                                  React.createElement(
+                                                      'span',
+                                                      {
+                                                          style: {
+                                                              fontWeight: '700',
+                                                              padding: '8px 12px',
+                                                              fontSize: '1.2rem',
+                                                          },
+                                                      },
+                                                      'Timestamp Formats: '
+                                                  ),
+                                                  React.createElement('div', {
+                                                      className: 'timestamp-formats-selects',
+                                                      children: timestampSelects,
+                                                  }),
+                                              ],
                                           }),
                                       ],
                                   });
@@ -656,17 +674,29 @@ input[type='date']::-webkit-calendar-picker-indicator {
                                   const timestring = str.match(/\b(24:00|2[0-3]:\d\d|[01]?\d((:\d\d)( ?(a|p)m?)?| ?(a|p)m?))\b/gi);
                                   if (timestring) {
                                       const time = timestring[0].split(':');
-                                      const minutes = parseInt(time[1]);
-                                      const ampm = time[1]?.match(/[a|p]m?/i);
-                                      let hours = parseInt(time[0]);
-
-                                      if (ampm) ampm[0].toLowerCase() === 'a' || ampm[0].toLowerCase() === 'am' ? (hours = hours === 12 ? 0 : hours) : (hours = hours === 12 ? 12 : hours + 12);
-
                                       let dt = new Date();
-                                      dt.setHours(hours);
-                                      dt.setMinutes(minutes);
-                                      dt.setSeconds(0);
-                                      dt.setMilliseconds(0);
+                                      if (time.length === 1) {
+                                          const ampm = time[0]?.match(/[a|p]m?/i);
+                                          let hours = parseInt(time[0]);
+
+                                          if (ampm) ampm[0].toLowerCase() === 'a' || ampm[0].toLowerCase() === 'am' ? (hours = hours === 12 ? 0 : hours) : (hours = hours === 12 ? 12 : hours + 12);
+
+                                          dt.setHours(hours);
+                                          dt.setMinutes(0);
+                                          dt.setSeconds(0);
+                                          dt.setMilliseconds(0);
+                                      } else {
+                                          const minutes = parseInt(time[1]);
+                                          const ampm = time[1]?.match(/[a|p]m?/i);
+                                          let hours = parseInt(time[0]);
+
+                                          if (ampm) ampm[0].toLowerCase() === 'a' || ampm[0].toLowerCase() === 'am' ? (hours = hours === 12 ? 0 : hours) : (hours = hours === 12 ? 12 : hours + 12);
+
+                                          dt.setHours(hours);
+                                          dt.setMinutes(minutes);
+                                          dt.setSeconds(0);
+                                          dt.setMilliseconds(0);
+                                      }
 
                                       return dt;
                                   }
@@ -728,7 +758,6 @@ input[type='date']::-webkit-calendar-picker-indicator {
                                               timestamps,
                                               onChange: (opts) => {
                                                   this.sendFomrmatOptions[opts.key] = opts.value;
-                                                  console.log(this.sendFomrmatOptions);
                                               },
                                           })
                                       );
@@ -745,7 +774,6 @@ input[type='date']::-webkit-calendar-picker-indicator {
                                   let n = 0;
                                   if (timestamps.length > 0)
                                       content = content.replace(/\{{(.*?)\}}/g, (match, p1) => {
-                                          console.log(match, p1);
                                           return this.sendFomrmatOptions[n++] || match;
                                       });
                               }
