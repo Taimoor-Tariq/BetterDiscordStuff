@@ -1,6 +1,6 @@
 /**
  * @name SendTimestamps
- * @version 2.1.1
+ * @version 2.1.2
  * @description Send timestamps in your messages easily by adding them in {{...}} or using the button.
  * @author Taimoor
  * @authorId 220161488516546561
@@ -34,7 +34,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = { info: { name: 'SendTimestamps', version: '2.1.1', description: 'Send timestamps in your messages easily by adding them in {{...}} or using the button.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] }, changelog: [{ title: 'Improvements!', type: 'improved', items: ['You can now select what fromat to send the timestamp in before sending when using `{{...}}`.'] }], main: 'index.js' };
+    const config = { info: { name: 'SendTimestamps', version: '2.1.2', description: 'Send timestamps in your messages easily by adding them in {{...}} or using the button.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] }, changelog: [{ title: 'Improvements!', type: 'improved', items: ['You can now select what fromat to send the timestamp in before sending when using `{{...}}`.', 'Fixed bug where the button hover was not working in attachmenu sometines.'] }], main: 'index.js' };
 
     return !global.ZeresPluginLibrary
         ? class {
@@ -186,7 +186,8 @@ input[type='date']::-webkit-calendar-picker-indicator {
     color: var(--text-normal);
     font-size: 1rem;
     flex-grow: 1;
-}`;
+}
+`;
 
                   const Button = WebpackModules.getByProps('Button').Button;
 
@@ -756,7 +757,11 @@ input[type='date']::-webkit-calendar-picker-indicator {
                           const menuOption = DOMTools.createElement(`<div class="item-1OdjEX labelContainer-2vJzYL colorDefault-CDqZdO" role="menuitem" id="channel-attach-TIMESTAMP" tabindex="-1" data-menu-item="true"> <div class="label-2gNW3x"> <div class="optionLabel-1o-h-l"> <svg class="optionIcon-1Ft8w0" aria-hidden="false" width="16" height="16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"> <path fill="currentColor" d="M256,8C119,8,8,119,8,256S119,504,256,504,504,393,504,256,393,8,256,8Zm92.49,313h0l-20,25a16,16,0,0,1-22.49,2.5h0l-67-49.72a40,40,0,0,1-15-31.23V112a16,16,0,0,1,16-16h32a16,16,0,0,1,16,16V256l58,42.5A16,16,0,0,1,348.49,321Z"></path> </svg> <div class="optionName-1ebPjH">Add Timestamp</div> </div> </div> </div>`);
 
                           menuOption.addEventListener('mouseenter', () => {
-                              for (let i = 0; i < attachMenu.children.length; i++) attachMenu.children[i].classList.remove('focused-3qFvc8');
+                              attachMenu.querySelector('#channel-attach-upload-file').classList.remove('focused-3qFvc8');
+                              menuOption.classList.add('focused-3qFvc8');
+                          });
+                          menuOption.addEventListener('mouseleave', () => {
+                              menuOption.classList.remove('focused-3qFvc8');
                           });
                           menuOption.addEventListener('click', () => {
                               this.showTimestampModal();
