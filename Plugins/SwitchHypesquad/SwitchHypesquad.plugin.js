@@ -1,6 +1,6 @@
 /**
  * @name SwitchHypesquad
- * @version 1.0.0
+ * @version 1.0.1
  * @description Switch Hypersquad Houses using slash command
  * @author Taimoor
  * @authorId 220161488516546561
@@ -34,7 +34,7 @@
 @else@*/
 
 module.exports = (() => {
-    const config = { info: { name: 'SwitchHypesquad', version: '1.0.0', description: 'Switch Hypersquad Houses using slash command', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SwitchHypesquad/SwitchHypesquad.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SwitchHypesquad/SwitchHypesquad.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] }, main: 'index.js' };
+    const config = { info: { name: 'SwitchHypesquad', version: '1.0.1', description: 'Switch Hypersquad Houses using slash command', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SwitchHypesquad/SwitchHypesquad.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SwitchHypesquad/SwitchHypesquad.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] }, main: 'index.js' };
 
     return !global.ZeresPluginLibrary
         ? class {
@@ -74,6 +74,7 @@ module.exports = (() => {
                       PluginUtilities,
                       Patcher,
                       WebpackModules,
+                      DOMTools,
                       Modals,
                       DiscordModules: { React },
                   } = Api;
@@ -100,8 +101,29 @@ module.exports = (() => {
                       }
 
                       onStop() {
+                          this.domObserver?.unsubscribeAll();
                           PluginUtilities.removeStyle(this.getName());
                           Patcher.unpatchAll();
+                      }
+
+                      load() {
+                          const myAdditions = (e) => {
+                              const pluginCard = e.target.querySelector(`#${this.getName()}-card`);
+                              if (pluginCard) {
+                                  const controls = pluginCard.querySelector('.bd-controls');
+                                  const changeLogButton = DOMTools.createElement(
+                                      `<button class="bd-button bd-addon-button bd-changelog-button" style"position: relative;"> <style> .bd-changelog-button-tooltip { visibility: hidden; position: absolute; background-color: var(--background-floating); box-shadow: var(--elevation-high); color: var(--text-normal); border-radius: 5px; font-size: 14px; line-height: 16px; white-space: nowrap; font-weight: 500; padding: 8px 12px; z-index: 999999; transform: translate(0, -125%); } .bd-changelog-button-tooltip:after { content: ''; position: absolute; top: 100%; left: 50%; margin-left: -3px; border-width: 3x; border-style: solid; border-color: var(--background-floating) transparent transparent transparent; } .bd-changelog-button:hover .bd-changelog-button-tooltip { visibility: visible; } </style> <span class="bd-changelog-button-tooltip">Changelog</span> <svg viewBox="0 0 24 24" fill="#FFFFFF" style="width: 20px; height: 20px;"> <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z" /> </svg> </button>`
+                                  );
+                                  changeLogButton.addEventListener('click', () => {
+                                      Api.Modals.showChangelogModal(this.getName(), this.getVersion(), this._config.changelog);
+                                  });
+
+                                  if (!controls.querySelector('.bd-changelog-button') && this._config.changelog?.length > 0) controls.prepend(changeLogButton);
+                              }
+                          };
+
+                          this.domObserver = new Api.DOMTools.DOMObserver();
+                          this.domObserver.subscribeToQuerySelector(myAdditions, `#${this.getName()}-card`);
                       }
 
                       switchSquad(houseID) {
