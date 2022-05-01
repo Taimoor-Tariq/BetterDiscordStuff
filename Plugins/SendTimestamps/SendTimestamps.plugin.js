@@ -1,6 +1,6 @@
 /**
  * @name SendTimestamps
- * @version 2.1.3
+ * @version 2.1.4
  * @description Send timestamps in your messages easily by adding them in {{...}} or using the button.
  * @author Taimoor
  * @authorId 220161488516546561
@@ -35,10 +35,11 @@
 
 module.exports = (() => {
     const config = {
-        info: { name: 'SendTimestamps', version: '2.1.3', description: 'Send timestamps in your messages easily by adding them in {{...}} or using the button.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] },
+        info: { name: 'SendTimestamps', version: '2.1.4', description: 'Send timestamps in your messages easily by adding them in {{...}} or using the button.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] },
         changelog: [
-            { title: 'v2.1.3 - Improvements and Bugs Fixes', type: 'improved', items: ['You can now just enter the hour without minutes when using the `{{...}}` method.', 'Fixed timestamp format selection covering multiline inputs'] },
-            { title: 'v2.1.2 - Improvements!', type: 'improved', items: ['You can now select what format to send the timestamp in before sending when using `{{...}}`.', 'Fixed bug where the button hover was not working in attach-menu sometines.'] },
+            { title: 'v2.1.4 - Bug Fixes', items: ['Plugin now properly remembers last used timestamp fromat.', 'Fixed relative time not swoing right time in modal.', 'Fixed attach-menu hover errors.', 'Fixed typos in changelog.'] },
+            { title: 'v2.1.3 - Improvements and Bug Fixes', type: 'improved', items: ['You can now just enter the hour without minutes when using the `{{...}}` method.', 'Fixed timestamp format selection covering multiline inputs'] },
+            { title: 'v2.1.2 - Improvements!', type: 'improved', items: ['You can now select what format to send the timestamp in before sending when using `{{...}}`.', 'Fixed bug where the button hover was not working in attach-menu sometimes.'] },
         ],
         main: 'index.js',
     };
@@ -235,8 +236,29 @@ input[type='date']::-webkit-calendar-picker-indicator {
                       }
 
                       onStop() {
+                          this.domObserver?.unsubscribeAll();
                           PluginUtilities.removeStyle(this.getName());
                           Patcher.unpatchAll();
+                      }
+
+                      load() {
+                          const myAdditions = (e) => {
+                              const pluginCard = e.target.querySelector(`#${this.getName()}-card`);
+                              if (pluginCard) {
+                                  const controls = pluginCard.querySelector('.bd-controls');
+                                  const changeLogButton = DOMTools.createElement(
+                                      `<button class="bd-button bd-addon-button bd-changelog-button" style"position: relative;"> <style> .bd-changelog-button-tooltip { visibility: hidden; position: absolute; background-color: var(--background-floating); box-shadow: var(--elevation-high); color: var(--text-normal); border-radius: 5px; font-size: 14px; line-height: 16px; white-space: nowrap; font-weight: 500; padding: 8px 12px; z-index: 999999; transform: translate(0, -125%); } .bd-changelog-button-tooltip:after { content: ''; position: absolute; top: 100%; left: 50%; margin-left: -3px; border-width: 3x; border-style: solid; border-color: var(--background-floating) transparent transparent transparent; } .bd-changelog-button:hover .bd-changelog-button-tooltip { visibility: visible; } </style> <span class="bd-changelog-button-tooltip">Changelog</span> <svg viewBox="0 0 24 24" fill="#FFFFFF" style="width: 20px; height: 20px;"> <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z" /> </svg> </button>`
+                                  );
+                                  changeLogButton.addEventListener('click', () => {
+                                      Api.Modals.showChangelogModal(this.getName(), this.getVersion(), this._config.changelog);
+                                  });
+
+                                  if (!controls.querySelector('.bd-changelog-button') && this._config.changelog?.length > 0) controls.prepend(changeLogButton);
+                              }
+                          };
+
+                          this.domObserver = new Api.DOMTools.DOMObserver();
+                          this.domObserver.subscribeToQuerySelector(myAdditions, `#${this.getName()}-card`);
                       }
 
                       getSettingsPanel() {
@@ -260,7 +282,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
                                               this.plugin.settings.replaceInMessages = e;
                                               this.setState({ replaceInMessages: e });
                                           },
-                                          note: 'Enabling this option will convert all the date/time in you message before you send it. Example: "{{dec 2 2020}} or {{10:40am}}". (your last used fromat from the modal is used)',
+                                          note: 'Enabling this option will convert all the date/time in you message before you send it. Example: "{{dec 2 2020}} or {{10:40am}}".',
                                       },
                                       'Replace on message send'
                                   );
@@ -374,7 +396,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
                           const inputFormat = this.settings.timestampFormat;
 
                           const getRelativeTime = (timestamp) => {
-                              const timeElapsed = timestamp - new Date();
+                              const timeElapsed = timestamp - new Date(new Date().getTime() - new Date().getTimezoneOffset() * 180000);
                               const units = {
                                   year: 24 * 60 * 60 * 1000 * 365,
                                   month: (24 * 60 * 60 * 1000 * 365) / 12,
@@ -597,7 +619,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
                                   this.props.timestamps.forEach((ts, key) => {
                                       this.props.onChange({
                                           key,
-                                          value: `<t:${ts.timestamp}:F>`,
+                                          value: `<t:${ts.timestamp}:${ts.timestampFormat}>`,
                                       });
                                   });
                               }
@@ -619,7 +641,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
                                                   'select',
                                                   {
                                                       className: 'select-timestamp',
-                                                      defaultValue: 'F',
+                                                      defaultValue: ts.timestampFormat,
                                                       onChange: (e) => {
                                                           this.props.onChange({ key, value: `<t:${ts.timestamp}:${e.target.value}>` });
                                                       },
@@ -784,6 +806,9 @@ input[type='date']::-webkit-calendar-picker-indicator {
                       patchAttachMenu(attachMenu) {
                           const menuOption = DOMTools.createElement(`<div class="item-1OdjEX labelContainer-2vJzYL colorDefault-CDqZdO" role="menuitem" id="channel-attach-TIMESTAMP" tabindex="-1" data-menu-item="true"> <div class="label-2gNW3x"> <div class="optionLabel-1o-h-l"> <svg class="optionIcon-1Ft8w0" aria-hidden="false" width="16" height="16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"> <path fill="currentColor" d="M256,8C119,8,8,119,8,256S119,504,256,504,504,393,504,256,393,8,256,8Zm92.49,313h0l-20,25a16,16,0,0,1-22.49,2.5h0l-67-49.72a40,40,0,0,1-15-31.23V112a16,16,0,0,1,16-16h32a16,16,0,0,1,16,16V256l58,42.5A16,16,0,0,1,348.49,321Z"></path> </svg> <div class="optionName-1ebPjH">Add Timestamp</div> </div> </div> </div>`);
 
+                          attachMenu.querySelector('#channel-attach-upload-file').addEventListener('mouseenter', () => {
+                              attachMenu.querySelector('#channel-attach-upload-file').classList.add('focused-3qFvc8');
+                          });
                           menuOption.addEventListener('mouseenter', () => {
                               attachMenu.querySelector('#channel-attach-upload-file').classList.remove('focused-3qFvc8');
                               menuOption.classList.add('focused-3qFvc8');
@@ -799,22 +824,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
                           if (!attachMenu?.querySelector('#channel-attach-TIMESTAMP')) attachMenu?.prepend(menuOption);
                       }
 
-                      patchChangeLogButton(pluginCard) {
-                          const controls = pluginCard.querySelector('.bd-controls');
-                          const changeLogButton = DOMTools.createElement(
-                              `<button class="bd-button bd-addon-button bd-changelog-button" style"position: relative;"> <style> .bd-changelog-button-tooltip { visibility: hidden; position: absolute; background-color: var(--background-floating); box-shadow: var(--elevation-high); color: var(--text-normal); border-radius: 5px; font-size: 14px; line-height: 16px; white-space: nowrap; font-weight: 500; padding: 8px 12px; z-index: 999999; transform: translate(0, -125%); } .bd-changelog-button-tooltip:after { content: ''; position: absolute; top: 100%; left: 50%; margin-left: -3px; border-width: 3x; border-style: solid; border-color: var(--background-floating) transparent transparent transparent; } .bd-changelog-button:hover .bd-changelog-button-tooltip { visibility: visible; } </style> <span class="bd-changelog-button-tooltip">Changelog</span> <svg viewBox="0 0 24 24" fill="#FFFFFF" style="width: 20px; height: 20px;"> <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z" /> </svg> </button>`
-                          );
-                          changeLogButton.addEventListener('click', () => {
-                              Modals.showChangelogModal(this.getName(), this.getVersion(), this._config.changelog);
-                          });
-
-                          if (!controls.querySelector('.bd-changelog-button') && this._config.changelog?.length > 0) controls.prepend(changeLogButton);
-                      }
-
                       observer(e) {
-                          const pluginCard = e.target.querySelector(`#${this.getName()}-card`);
-                          if (pluginCard) this.patchChangeLogButton(pluginCard);
-
                           const attachMenu = e.target.querySelector('#channel-attach');
                           if (attachMenu && this.settings.showInAttachMenu) this.patchAttachMenu(attachMenu.querySelector('div'));
                       }
