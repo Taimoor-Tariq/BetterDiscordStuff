@@ -1,7 +1,7 @@
 ---
 name: Feature Request
 about: Suggest a new feature you would like to see
-title: "[ FEATURE | (PluginName) ] ..."
+title: "[ FEATURE | PluginName ] ..."
 labels: FEATURE
 assignees: ''
 
