@@ -1,6 +1,6 @@
 /**
  * @name SendTimestamps
- * @version 2.1.4
+ * @version 2.1.5
  * @description Send timestamps in your messages easily by adding them in {{...}} or using the button.
  * @author Taimoor
  * @authorId 220161488516546561
@@ -35,11 +35,11 @@
 
 module.exports = (() => {
     const config = {
-        info: { name: 'SendTimestamps', version: '2.1.4', description: 'Send timestamps in your messages easily by adding them in {{...}} or using the button.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] },
+        info: { name: 'SendTimestamps', version: '2.1.5', description: 'Send timestamps in your messages easily by adding them in {{...}} or using the button.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] },
         changelog: [
-            { title: 'v2.1.4 - Bug Fixes', items: ['Plugin now properly remembers last used timestamp fromat.', 'Fixed relative time not swoing right time in modal.', 'Fixed attach-menu hover errors.', 'Fixed typos in changelog.'] },
+            { title: 'v2.1.5 - Improvements and Bug Fixes', items: ['Timestamp format dropdowns now also show up for the `<t:xxxxxxxxxx:f>` format!', 'Fixed options not working when editing messages.'] },
+            { title: 'v2.1.4 - Bug Fixes', type: 'improved', items: ['Plugin now properly remembers last used timestamp fromat.', 'Fixed relative time not swoing right time in modal.', 'Fixed attach-menu hover errors.', 'Fixed typos in changelog.'] },
             { title: 'v2.1.3 - Improvements and Bug Fixes', type: 'improved', items: ['You can now just enter the hour without minutes when using the `{{...}}` method.', 'Fixed timestamp format selection covering multiline inputs'] },
-            { title: 'v2.1.2 - Improvements!', type: 'improved', items: ['You can now select what format to send the timestamp in before sending when using `{{...}}`.', 'Fixed bug where the button hover was not working in attach-menu sometimes.'] },
         ],
         main: 'index.js',
     };
@@ -81,7 +81,6 @@ module.exports = (() => {
                   const {
                       PluginUtilities,
                       Patcher,
-                      Settings,
                       Modals,
                       DOMTools,
                       WebpackModules,
@@ -175,7 +174,6 @@ input[type='date']::-webkit-calendar-picker-indicator {
 .timestamp-formats-selector {
     position: absolute;
     bottom: 0;
-    left: 2rem;
     width: 100%;
     background-color: var(--background-tertiary);
     box-shadow: var(--elevation-high);
@@ -689,42 +687,47 @@ input[type='date']::-webkit-calendar-picker-indicator {
                               }
                           }
 
-                          const getTimestamp = (str) => {
-                              const d = Date.parse(str) / 1000;
+                          const getTimestamp = (str, pre = false) => {
+                              if (pre) {
+                                  str = new Date(str * 1000);
+                                  return str;
+                              } else {
+                                  const d = Date.parse(str) / 1000;
 
-                              if (isNaN(d)) {
-                                  const timestring = str.match(/\b(24:00|2[0-3]:\d\d|[01]?\d((:\d\d)( ?(a|p)m?)?| ?(a|p)m?))\b/gi);
-                                  if (timestring) {
-                                      const time = timestring[0].split(':');
-                                      let dt = new Date();
-                                      if (time.length === 1) {
-                                          const ampm = time[0]?.match(/[a|p]m?/i);
-                                          let hours = parseInt(time[0]);
+                                  if (isNaN(d)) {
+                                      const timestring = str.match(/\b(24:00|2[0-3]:\d\d|[01]?\d((:\d\d)( ?(a|p)m?)?| ?(a|p)m?))\b/gi);
+                                      if (timestring) {
+                                          const time = timestring[0].split(':');
+                                          let dt = new Date();
+                                          if (time.length === 1) {
+                                              const ampm = time[0]?.match(/[a|p]m?/i);
+                                              let hours = parseInt(time[0]);
 
-                                          if (ampm) ampm[0].toLowerCase() === 'a' || ampm[0].toLowerCase() === 'am' ? (hours = hours === 12 ? 0 : hours) : (hours = hours === 12 ? 12 : hours + 12);
+                                              if (ampm) ampm[0].toLowerCase() === 'a' || ampm[0].toLowerCase() === 'am' ? (hours = hours === 12 ? 0 : hours) : (hours = hours === 12 ? 12 : hours + 12);
 
-                                          dt.setHours(hours);
-                                          dt.setMinutes(0);
-                                          dt.setSeconds(0);
-                                          dt.setMilliseconds(0);
-                                      } else {
-                                          const minutes = parseInt(time[1]);
-                                          const ampm = time[1]?.match(/[a|p]m?/i);
-                                          let hours = parseInt(time[0]);
+                                              dt.setHours(hours);
+                                              dt.setMinutes(0);
+                                              dt.setSeconds(0);
+                                              dt.setMilliseconds(0);
+                                          } else {
+                                              const minutes = parseInt(time[1]);
+                                              const ampm = time[1]?.match(/[a|p]m?/i);
+                                              let hours = parseInt(time[0]);
 
-                                          if (ampm) ampm[0].toLowerCase() === 'a' || ampm[0].toLowerCase() === 'am' ? (hours = hours === 12 ? 0 : hours) : (hours = hours === 12 ? 12 : hours + 12);
+                                              if (ampm) ampm[0].toLowerCase() === 'a' || ampm[0].toLowerCase() === 'am' ? (hours = hours === 12 ? 0 : hours) : (hours = hours === 12 ? 12 : hours + 12);
 
-                                          dt.setHours(hours);
-                                          dt.setMinutes(minutes);
-                                          dt.setSeconds(0);
-                                          dt.setMilliseconds(0);
+                                              dt.setHours(hours);
+                                              dt.setMinutes(minutes);
+                                              dt.setSeconds(0);
+                                              dt.setMilliseconds(0);
+                                          }
+
+                                          return dt;
                                       }
+                                  } else str = d;
 
-                                      return dt;
-                                  }
-                              } else str = d;
-
-                              return str;
+                                  return str;
+                              }
                           };
 
                           const getRelativeTime = (timestamp) => {
@@ -743,13 +746,13 @@ input[type='date']::-webkit-calendar-picker-indicator {
 
                           Patcher.after(ChannelTextAreaContainer, 'render', (_, [props], ret) => {
                               const { textValue } = props;
-                              if (!textValue) return;
+                              if (!textValue) return ret;
 
-                              if (/\{{(.*?)\}}/g.test(textValue)) {
-                                  let timestamps = [...textValue.matchAll(/\{{(.*?)\}}/g)]
+                              if (/\{{(.*?)\}}/g.test(textValue) || /<t:[0-9]+:[tTdDfFR]>/g.test(textValue)) {
+                                  let timestamps = [...textValue.matchAll(/\{{(.*?)\}}/g), ...textValue.matchAll(/<t:[0-9]+:[tTdDfFR]>/g)]
                                       .filter((m) => m[1] != '')
                                       .map((m) => {
-                                          let timestamp = getTimestamp(m[1]);
+                                          let timestamp = getTimestamp(m[1] || parseInt(m[0].split(':')[1]), /<t:[0-9]+:[tTdDfFR]>/g.test(m[0]));
                                           if (isNaN(timestamp))
                                               return {
                                                   timestamp: new Date().getTime() / 1000,
@@ -761,7 +764,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
 
                                           return {
                                               timestamp: timestamp.getTime() / 1000,
-                                              timestampFormat: this.settings.timestampFormat,
+                                              timestampFormat: m[0].split(':')[2]?.charAt(0) || this.settings.timestampFormat,
                                               options: [
                                                   { value: 't', label: timestamp.toLocaleString(undefined, { hour: '2-digit', minute: '2-digit' }).replace(' at', '') },
                                                   { value: 'T', label: timestamp.toLocaleString(undefined, { timeStyle: 'medium' }).replace(' at', '') },
@@ -788,14 +791,28 @@ input[type='date']::-webkit-calendar-picker-indicator {
                               return ret;
                           });
 
+                          Patcher.before(MessageActions, 'editMessage', (_, [__, ___, props], ret) => {
+                              let { content } = props;
+
+                              if (/\{{(.*?)\}}/g.test(content) || /<t:[0-9]+:[tTdDfFR]>/g.test(content)) {
+                                  let timestamps = [...content.matchAll(/\{{(.*?)\}}/g), ...content.matchAll(/<t:[0-9]+:[tTdDfFR]>/g)].filter((m) => m[1] != '');
+                                  let n = 0;
+                                  if (timestamps.length > 0)
+                                      content = content.replace(/(\{{(.*?)\}})|(<t:[0-9]+:[tTdDfFR]>)/g, (match, p1) => {
+                                          return this.sendFomrmatOptions[n++] || match;
+                                      });
+                              }
+                              props.content = content;
+                          });
+
                           Patcher.before(MessageActions, 'sendMessage', (_, [__, props], ret) => {
                               let { content } = props;
 
-                              if (/\{{(.*?)\}}/g.test(content)) {
-                                  let timestamps = [...content.matchAll(/\{{(.*?)\}}/g)].filter((m) => m[1] != '');
+                              if (/\{{(.*?)\}}/g.test(content) || /<t:[0-9]+:[tTdDfFR]>/g.test(content)) {
+                                  let timestamps = [...content.matchAll(/\{{(.*?)\}}/g), ...content.matchAll(/<t:[0-9]+:[tTdDfFR]>/g)].filter((m) => m[1] != '');
                                   let n = 0;
                                   if (timestamps.length > 0)
-                                      content = content.replace(/\{{(.*?)\}}/g, (match, p1) => {
+                                      content = content.replace(/(\{{(.*?)\}})|(<t:[0-9]+:[tTdDfFR]>)/g, (match, p1) => {
                                           return this.sendFomrmatOptions[n++] || match;
                                       });
                               }
