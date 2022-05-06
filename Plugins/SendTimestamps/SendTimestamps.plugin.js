@@ -1,6 +1,6 @@
 /**
  * @name SendTimestamps
- * @version 2.1.5
+ * @version 2.1.6
  * @description Send timestamps in your messages easily by adding them in {{...}} or using the button.
  * @author Taimoor
  * @authorId 220161488516546561
@@ -35,11 +35,11 @@
 
 module.exports = (() => {
     const config = {
-        info: { name: 'SendTimestamps', version: '2.1.5', description: 'Send timestamps in your messages easily by adding them in {{...}} or using the button.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] },
+        info: { name: 'SendTimestamps', version: '2.1.6', description: 'Send timestamps in your messages easily by adding them in {{...}} or using the button.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] },
         changelog: [
-            { title: 'v2.1.5 - Improvements and Bug Fixes', items: ['Timestamp format dropdowns now also show up for the `<t:xxxxxxxxxx:f>` format!', 'Fixed options not working when editing messages.'] },
+            { title: 'v2.1.6 - Bug Fixes', items: ['Fixed seconds reseting to 00.'] },
+            { title: 'v2.1.5 - Improvements and Bug Fixes', type: 'improved', items: ['Timestamp format dropdowns now also show up for the `<t:xxxxxxxxxx:f>` format!', 'Fixed options not working when editing messages.'] },
             { title: 'v2.1.4 - Bug Fixes', type: 'improved', items: ['Plugin now properly remembers last used timestamp fromat.', 'Fixed relative time not swoing right time in modal.', 'Fixed attach-menu hover errors.', 'Fixed typos in changelog.'] },
-            { title: 'v2.1.3 - Improvements and Bug Fixes', type: 'improved', items: ['You can now just enter the hour without minutes when using the `{{...}}` method.', 'Fixed timestamp format selection covering multiline inputs'] },
         ],
         main: 'index.js',
     };
@@ -84,7 +84,7 @@ module.exports = (() => {
                       Modals,
                       DOMTools,
                       WebpackModules,
-                      DiscordModules: { React, MessageActions, Slider, Dropdown, SwitchRow },
+                      DiscordModules: { React, MessageActions, Slider, Dropdown, SwitchRow, UserSettingsStore },
                   } = Api;
                   const ComponentDispatch = WebpackModules.getByProps('ComponentDispatch').ComponentDispatch;
                   const ComponentActions = WebpackModules.getByProps('ComponentActions').ComponentActions;
@@ -221,9 +221,17 @@ input[type='date']::-webkit-calendar-picker-indicator {
                           };
 
                           this.forceOnRight = false;
+                          this.locale = UserSettingsStore.locale;
 
                           this.sendFomrmatOptions = {
                               0: 'F',
+                          };
+
+                          this.replaceTextAreaText = (text) => {
+                              ComponentDispatch.dispatchToLastSubscribed(ComponentActions.CLEAR_TEXT);
+                              setImmediate(() => {
+                                  ComponentDispatch.dispatchToLastSubscribed(ComponentActions.INSERT_TEXT, { content: text, plainText: text });
+                              });
                           };
                       }
 
@@ -695,33 +703,42 @@ input[type='date']::-webkit-calendar-picker-indicator {
                                   const d = Date.parse(str) / 1000;
 
                                   if (isNaN(d)) {
-                                      const timestring = str.match(/\b(24:00|2[0-3]:\d\d|[01]?\d((:\d\d)( ?(a|p)m?)?| ?(a|p)m?))\b/gi);
+                                      const timestring = str.match(/\b(24:00:00|2[0-3]:[0-5]\d:[0-5]\d|2[0-3]:[0-5]\d|24:00|[01]?\d:[0-5]\d:[0-5]\d( ?(am|pm)?)|[01]?\d:[0-5]\d( ?(am|pm)?))\b/gi);
                                       if (timestring) {
                                           const time = timestring[0].split(':');
                                           let dt = new Date();
-                                          if (time.length === 1) {
-                                              const ampm = time[0]?.match(/[a|p]m?/i);
-                                              let hours = parseInt(time[0]);
+                                          let hours = 0;
+                                          let minutes = 0;
+                                          let seconds = 0;
+                                          let meridian;
 
-                                              if (ampm) ampm[0].toLowerCase() === 'a' || ampm[0].toLowerCase() === 'am' ? (hours = hours === 12 ? 0 : hours) : (hours = hours === 12 ? 12 : hours + 12);
+                                          switch (time.length) {
+                                              case 1:
+                                                  meridian = time[0]?.match(/[a|p]m?/i);
+                                                  hours = parseInt(time[0]);
 
-                                              dt.setHours(hours);
-                                              dt.setMinutes(0);
-                                              dt.setSeconds(0);
-                                              dt.setMilliseconds(0);
-                                          } else {
-                                              const minutes = parseInt(time[1]);
-                                              const ampm = time[1]?.match(/[a|p]m?/i);
-                                              let hours = parseInt(time[0]);
+                                                  if (meridian) meridian[0].toLowerCase() === 'a' || meridian[0].toLowerCase() === 'am' ? (hours = hours === 12 ? 0 : hours) : (hours = hours === 12 ? 12 : hours + 12);
+                                                  break;
+                                              case 2:
+                                                  meridian = time[1]?.match(/[a|p]m?/i);
+                                                  hours = parseInt(time[0]);
+                                                  minutes = parseInt(time[1]);
 
-                                              if (ampm) ampm[0].toLowerCase() === 'a' || ampm[0].toLowerCase() === 'am' ? (hours = hours === 12 ? 0 : hours) : (hours = hours === 12 ? 12 : hours + 12);
+                                                  if (meridian) meridian[0].toLowerCase() === 'a' || meridian[0].toLowerCase() === 'am' ? (hours = hours === 12 ? 0 : hours) : (hours = hours === 12 ? 12 : hours + 12);
+                                                  break;
+                                              case 3:
+                                                  meridian = time[2]?.match(/[a|p]m?/i);
+                                                  hours = parseInt(time[0]);
+                                                  minutes = parseInt(time[1]);
+                                                  seconds = parseInt(time[2]);
 
-                                              dt.setHours(hours);
-                                              dt.setMinutes(minutes);
-                                              dt.setSeconds(0);
-                                              dt.setMilliseconds(0);
+                                                  if (meridian) meridian[0].toLowerCase() === 'a' || meridian[0].toLowerCase() === 'am' ? (hours = hours === 12 ? 0 : hours) : (hours = hours === 12 ? 12 : hours + 12);
+                                                  break;
                                           }
-
+                                          dt.setHours(hours);
+                                          dt.setMinutes(minutes);
+                                          dt.setSeconds(seconds);
+                                          dt.setMilliseconds(0);
                                           return dt;
                                       }
                                   } else str = d;
