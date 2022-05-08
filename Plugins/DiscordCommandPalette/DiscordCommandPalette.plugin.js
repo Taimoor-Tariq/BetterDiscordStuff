@@ -1,6 +1,6 @@
 /**
  * @name DiscordCommandPalette
- * @version 1.0.0
+ * @version 1.0.1
  * @description Add a command palette to discord.
  * @author Taimoor
  * @authorId 220161488516546561
@@ -34,7 +34,14 @@
 @else@*/
 
 module.exports = (() => {
-    const config = { info: { name: 'DiscordCommandPalette', version: '1.0.0', description: 'Add a command palette to discord.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/DiscordCommandPalette/DiscordCommandPalette.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/DiscordCommandPalette/DiscordCommandPalette.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] }, main: 'index.js' };
+    const config = {
+        info: { name: 'DiscordCommandPalette', version: '1.0.1', description: 'Add a command palette to discord.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/DiscordCommandPalette/DiscordCommandPalette.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/DiscordCommandPalette/DiscordCommandPalette.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] },
+        changelog: [
+            { title: 'v1.0.1 - New Stuff!!!', items: ['Added DMs and GDMs to the command palette.', 'Added option to disconnect from a VC.', 'Added command aliases such as "#" for channels and "dm" for DMs and GDMs.', 'Fixed channels with accents not working.', 'Fixed command palette closing for no reason.'] },
+            { title: 'v1.0.0 - Release', type: 'improved', items: ['Plugin Released!!!.'] },
+        ],
+        main: 'index.js',
+    };
 
     return !global.ZeresPluginLibrary
         ? class {
@@ -74,7 +81,8 @@ module.exports = (() => {
                       PluginUtilities,
                       Patcher,
                       DOMTools,
-                      DiscordModules: { React, ReactDOM, GuildChannelsStore, GuildStore, Keybind, NavigationUtils, ChannelActions },
+                      Modals,
+                      DiscordModules: { React, ReactDOM, GuildChannelsStore, GuildStore, Keybind, NavigationUtils, ChannelActions, ChannelStore },
                   } = Api;
                   const css = `.command-palette-bg {
     position: fixed;
@@ -144,7 +152,24 @@ module.exports = (() => {
 .command-palette-suggestion-match {
     font-weight: bold;
 }
-`;
+
+.command-palette-help {
+    display: flex;
+    flex-direction: column;
+    color: var(--text-normal);
+}
+
+.command-palette-help-title {
+    padding: 12px 0;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.command-palette-help-item {
+    display: block;
+    padding: 4px 0;
+    font-size: 1rem;
+}`;
 
                   return class DiscordCommandPalette extends Plugin {
                       constructor() {
@@ -161,10 +186,10 @@ module.exports = (() => {
 
                           this.getIcon = (type) => {
                               let paths = {
-                                  1: 'M5.88657 21C5.57547 21 5.3399 20.7189 5.39427 20.4126L6.00001 17H2.59511C2.28449 17 2.04905 16.7198 2.10259 16.4138L2.27759 15.4138C2.31946 15.1746 2.52722 15 2.77011 15H6.35001L7.41001 9H4.00511C3.69449 9 3.45905 8.71977 3.51259 8.41381L3.68759 7.41381C3.72946 7.17456 3.93722 7 4.18011 7H7.76001L8.39677 3.41262C8.43914 3.17391 8.64664 3 8.88907 3H9.87344C10.1845 3 10.4201 3.28107 10.3657 3.58738L9.76001 7H15.76L16.3968 3.41262C16.4391 3.17391 16.6466 3 16.8891 3H17.8734C18.1845 3 18.4201 3.28107 18.3657 3.58738L17.76 7H21.1649C21.4755 7 21.711 7.28023 21.6574 7.58619L21.4824 8.58619C21.4406 8.82544 21.2328 9 20.9899 9H17.41L16.35 15H19.7549C20.0655 15 20.301 15.2802 20.2474 15.5862L20.0724 16.5862C20.0306 16.8254 19.8228 17 19.5799 17H16L15.3632 20.5874C15.3209 20.8261 15.1134 21 14.8709 21H13.8866C13.5755 21 13.3399 20.7189 13.3943 20.4126L14 17H8.00001L7.36325 20.5874C7.32088 20.8261 7.11337 21 6.87094 21H5.88657ZM9.41045 9L8.35045 15H14.3504L15.4104 9H9.41045Z',
-                                  2: 'M11.383 3.07904C11.009 2.92504 10.579 3.01004 10.293 3.29604L6 8.00204H3C2.45 8.00204 2 8.45304 2 9.00204V15.002C2 15.552 2.45 16.002 3 16.002H6L10.293 20.71C10.579 20.996 11.009 21.082 11.383 20.927C11.757 20.772 12 20.407 12 20.002V4.00204C12 3.59904 11.757 3.23204 11.383 3.07904ZM14 5.00195V7.00195C16.757 7.00195 19 9.24595 19 12.002C19 14.759 16.757 17.002 14 17.002V19.002C17.86 19.002 21 15.863 21 12.002C21 8.14295 17.86 5.00195 14 5.00195ZM14 9.00195C15.654 9.00195 17 10.349 17 12.002C17 13.657 15.654 15.002 14 15.002V13.002C14.551 13.002 15 12.553 15 12.002C15 11.451 14.551 11.002 14 11.002V9.00195Z',
-                                  3: 'M21.143 11.429h-1.714V6.857a2.292 2.292 0 00-2.286-2.286H12.57V2.857a2.858 2.858 0 00-5.714 0v1.714H2.286A2.283 2.283 0 00.01 6.857V11.2h1.703A3.087 3.087 0 014.8 14.286a3.087 3.087 0 01-3.086 3.085H0v4.343A2.292 2.292 0 002.286 24h4.343v-1.714A3.087 3.087 0 019.714 19.2a3.087 3.087 0 013.086 3.086V24h4.343a2.292 2.292 0 002.286-2.286v-4.571h1.714a2.858 2.858 0 000-5.714z',
-                                  4: 'M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12c1.107 0 2-.893 2-2 0-.52-.2-.987-.52-1.347a2.003 2.003 0 01-.507-1.32c0-1.106.894-2 2-2h2.36A6.67 6.67 0 0024 10.667C24 4.773 18.627 0 12 0zM4.667 12c-1.107 0-2-.893-2-2s.893-2 2-2c1.106 0 2 .893 2 2s-.894 2-2 2zm4-5.333c-1.107 0-2-.894-2-2 0-1.107.893-2 2-2 1.106 0 2 .893 2 2 0 1.106-.894 2-2 2zm6.666 0c-1.106 0-2-.894-2-2 0-1.107.894-2 2-2 1.107 0 2 .893 2 2 0 1.106-.893 2-2 2zm4 5.333c-1.106 0-2-.893-2-2s.894-2 2-2c1.107 0 2 .893 2 2s-.893 2-2 2z',
+                                  CHANNEL: 'M5.88657 21C5.57547 21 5.3399 20.7189 5.39427 20.4126L6.00001 17H2.59511C2.28449 17 2.04905 16.7198 2.10259 16.4138L2.27759 15.4138C2.31946 15.1746 2.52722 15 2.77011 15H6.35001L7.41001 9H4.00511C3.69449 9 3.45905 8.71977 3.51259 8.41381L3.68759 7.41381C3.72946 7.17456 3.93722 7 4.18011 7H7.76001L8.39677 3.41262C8.43914 3.17391 8.64664 3 8.88907 3H9.87344C10.1845 3 10.4201 3.28107 10.3657 3.58738L9.76001 7H15.76L16.3968 3.41262C16.4391 3.17391 16.6466 3 16.8891 3H17.8734C18.1845 3 18.4201 3.28107 18.3657 3.58738L17.76 7H21.1649C21.4755 7 21.711 7.28023 21.6574 7.58619L21.4824 8.58619C21.4406 8.82544 21.2328 9 20.9899 9H17.41L16.35 15H19.7549C20.0655 15 20.301 15.2802 20.2474 15.5862L20.0724 16.5862C20.0306 16.8254 19.8228 17 19.5799 17H16L15.3632 20.5874C15.3209 20.8261 15.1134 21 14.8709 21H13.8866C13.5755 21 13.3399 20.7189 13.3943 20.4126L14 17H8.00001L7.36325 20.5874C7.32088 20.8261 7.11337 21 6.87094 21H5.88657ZM9.41045 9L8.35045 15H14.3504L15.4104 9H9.41045Z',
+                                  VOICE: 'M11.383 3.07904C11.009 2.92504 10.579 3.01004 10.293 3.29604L6 8.00204H3C2.45 8.00204 2 8.45304 2 9.00204V15.002C2 15.552 2.45 16.002 3 16.002H6L10.293 20.71C10.579 20.996 11.009 21.082 11.383 20.927C11.757 20.772 12 20.407 12 20.002V4.00204C12 3.59904 11.757 3.23204 11.383 3.07904ZM14 5.00195V7.00195C16.757 7.00195 19 9.24595 19 12.002C19 14.759 16.757 17.002 14 17.002V19.002C17.86 19.002 21 15.863 21 12.002C21 8.14295 17.86 5.00195 14 5.00195ZM14 9.00195C15.654 9.00195 17 10.349 17 12.002C17 13.657 15.654 15.002 14 15.002V13.002C14.551 13.002 15 12.553 15 12.002C15 11.451 14.551 11.002 14 11.002V9.00195Z',
+                                  PLUGIN: 'M21.143 11.429h-1.714V6.857a2.292 2.292 0 00-2.286-2.286H12.57V2.857a2.858 2.858 0 00-5.714 0v1.714H2.286A2.283 2.283 0 00.01 6.857V11.2h1.703A3.087 3.087 0 014.8 14.286a3.087 3.087 0 01-3.086 3.085H0v4.343A2.292 2.292 0 002.286 24h4.343v-1.714A3.087 3.087 0 019.714 19.2a3.087 3.087 0 013.086 3.086V24h4.343a2.292 2.292 0 002.286-2.286v-4.571h1.714a2.858 2.858 0 000-5.714z',
+                                  THEME: 'M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12c1.107 0 2-.893 2-2 0-.52-.2-.987-.52-1.347a2.003 2.003 0 01-.507-1.32c0-1.106.894-2 2-2h2.36A6.67 6.67 0 0024 10.667C24 4.773 18.627 0 12 0zM4.667 12c-1.107 0-2-.893-2-2s.893-2 2-2c1.106 0 2 .893 2 2s-.894 2-2 2zm4-5.333c-1.107 0-2-.894-2-2 0-1.107.893-2 2-2 1.106 0 2 .893 2 2 0 1.106-.894 2-2 2zm6.666 0c-1.106 0-2-.894-2-2 0-1.107.894-2 2-2 1.107 0 2 .893 2 2 0 1.106-.893 2-2 2zm4 5.333c-1.106 0-2-.893-2-2s.894-2 2-2c1.107 0 2 .893 2 2s-.893 2-2 2z',
                               };
 
                               return React.createElement('svg', {
@@ -184,10 +209,11 @@ module.exports = (() => {
                           };
 
                           this.COMMAND_TYPES = {
-                              1: (data) => NavigationUtils.transitionTo(`/channels/${data.gID}/${data.cID}`),
-                              2: (data) => ChannelActions.selectVoiceChannel(data.cID),
-                              3: (data) => BdApi.Plugins.toggle(data.pID),
-                              4: (data) => BdApi.Themes.toggle(data.tID),
+                              0: () => this.showHelpModal(),
+                              1: (data) => NavigationUtils.transitionTo(`/channels/${data.gID}/${data.cID}`), // Channel
+                              2: (data) => ChannelActions.selectVoiceChannel(data.cID), // Voice Channel
+                              3: (data) => BdApi.Plugins.toggle(data.pID), // Plugin
+                              4: (data) => BdApi.Themes.toggle(data.tID), // Theme
                           };
 
                           this.listener = (e) => {
@@ -241,7 +267,7 @@ module.exports = (() => {
                               });
                           });
 
-                          this.cacheChannelsAndAddons();
+                          this.cacheCommands();
 
                           if (!document.querySelector(`#DiscordCommandPaletteWrapper`)) {
                               const CommandPaletterWrapper = document.createElement('div');
@@ -315,10 +341,39 @@ module.exports = (() => {
                           return React.createElement(PlugdisableListener, { plugin: this });
                       }
 
-                      cacheChannelsAndAddons() {
+                      cacheCommands() {
                           const GUILDS = GuildStore.getGuilds();
                           const PLUGINS = BdApi.Plugins.getAll();
                           const THEMES = BdApi.Themes.getAll();
+                          const DMs = ChannelStore.getSortedPrivateChannels()
+                              .filter((c) => c.type === 1)
+                              .map((c) => {
+                                  return {
+                                      id: c.id,
+                                      recipient: c.rawRecipients.map((r) => {
+                                          return {
+                                              id: r.id,
+                                              username: r.username,
+                                              discriminator: r.discriminator,
+                                          };
+                                      })[0],
+                                  };
+                              });
+                          const GDMs = ChannelStore.getSortedPrivateChannels()
+                              .filter((c) => c.type === 3)
+                              .map((c) => {
+                                  return {
+                                      id: c.id,
+                                      name: c.name,
+                                      recipients: c.rawRecipients.map((r) => {
+                                          return {
+                                              id: r.id,
+                                              username: r.username,
+                                              discriminator: r.discriminator,
+                                          };
+                                      }),
+                                  };
+                              });
 
                           let CHANNELS = [];
 
@@ -347,6 +402,52 @@ module.exports = (() => {
                           });
 
                           this.chachedCommands = [
+                              {
+                                  label: 'Plugin Help',
+                                  alias: `
+                        DiscordCommandPalette Help
+                        Discord Command Palette Help
+                    `,
+                                  type: 0,
+                                  icon: 'HELP',
+                              },
+                              ...DMs.map((dm) => {
+                                  let aliasString = `
+                        Open dm with ${dm.recipient.username}#${dm.recipient.discriminator}
+                        DM ${dm.recipient.username}#${dm.recipient.discriminator}
+                    `;
+                                  return {
+                                      label: `Open direct message with ${dm.recipient.username}#${dm.recipient.discriminator}`,
+                                      alias: `${aliasString} ${aliasString.normalize('NFD').replace(/[\u0300-\u036f]/g, '')}`,
+                                      type: 1,
+                                      data: {
+                                          gID: '@me',
+                                          cID: dm.id,
+                                      },
+                                      icon: 'DM',
+                                  };
+                              }),
+                              ...GDMs.map((dm) => {
+                                  let aliasString = `
+                        Open group messages ${dm.name ? `in ${dm.name}` : `with ${dm.recipients.map((r) => `${r.username}#${r.discriminator}`).join(', ')}`}
+                        Open gdm ${dm.name ? `in ${dm.name}` : `with ${dm.recipients.map((r) => `${r.username}#${r.discriminator}`).join(', ')}`}
+                        Open gdm ${dm.name ? `in ${dm.name}` : `with ${dm.recipients.map((r) => r.username).join(', ')}`}
+                        GDM ${dm.name ? dm.name : dm.recipients.map((r) => `${r.username}#${r.discriminator}`).join(', ')}}
+                        GDM ${dm.name ? dm.name : dm.recipients.map((r) => `${r.username}#${r.discriminator}`).join(', ')}}
+                        DM ${dm.name ? dm.name : dm.recipients.map((r) => r.username).join(', ')}}
+                        DM ${dm.name ? dm.name : dm.recipients.map((r) => r.username).join(', ')}}
+                    `;
+                                  return {
+                                      label: `Open group messages ${dm.name ? `in ${dm.name} (${dm.recipients.map((r) => r.username).join(', ')})` : `with ${dm.recipients.map((r) => r.username).join(', ')}`}`,
+                                      alias: `${aliasString} ${aliasString.normalize('NFD').replace(/[\u0300-\u036f]/g, '')}`,
+                                      type: 1,
+                                      data: {
+                                          gID: '@me',
+                                          cID: dm.id,
+                                      },
+                                      icon: 'DM',
+                                  };
+                              }),
                               ...PLUGINS.filter((p) => p.name != this.getName()).map((p) => {
                                   return {
                                       label: `Toggle plugin ${p.id}`,
@@ -354,6 +455,7 @@ module.exports = (() => {
                                       data: {
                                           pID: p.id,
                                       },
+                                      icon: 'PLUGIN',
                                   };
                               }),
                               ...THEMES.map((t) => {
@@ -363,18 +465,26 @@ module.exports = (() => {
                                       data: {
                                           tID: t.id,
                                       },
+                                      icon: 'THEME',
                                   };
                               }),
                               ...CHANNELS.map((g) => {
                                   return [
                                       ...g.channels.text.map((c) => {
+                                          let aliasString = `
+                                Switch to ${c.name.replace(/-/g, ' ')} in ${g.guild.name}
+                                #${c.name}
+                                #${c.name.replace(/-/g, ' ')}
+                            `;
                                           return {
                                               label: `Switch to ${c.name} in ${g.guild.name}`,
+                                              alias: `${aliasString} ${aliasString.normalize('NFD').replace(/[\u0300-\u036f]/g, '')}`,
                                               type: 1,
                                               data: {
                                                   gID: g.guild.id,
                                                   cID: c.id,
                                               },
+                                              icon: 'CHANNEL',
                                           };
                                       }),
                                       ...g.channels.voice.map((c) => {
@@ -384,17 +494,66 @@ module.exports = (() => {
                                               data: {
                                                   cID: c.id,
                                               },
+                                              icon: 'VOICE',
                                           };
                                       }),
                                   ];
                               }).flat(),
+                              {
+                                  label: `Disconnect from voice channel`,
+                                  alias: `
+                        Leave voice channel
+                        Disconnect
+                        DC
+                    `,
+                                  type: 2,
+                                  data: {
+                                      cID: null,
+                                  },
+                                  icon: 'LEAVE_VOICE',
+                              },
                           ];
                       }
 
-                      addRecentCommand(command) {
-                          if (this.settings.recentCommands.includes(command)) this.settings.recentCommands.splice(this.settings.recentCommands.indexOf(command), 1);
+                      showHelpModal() {
+                          Modals.showModal(
+                              'DiscordCommandPalette Help',
+                              [
+                                  React.createElement('div', {
+                                      className: 'command-palette-help',
+                                      children: [
+                                          React.createElement('span', { className: 'command-palette-help-title' }, 'Messages and Channels'),
+                                          React.createElement('span', { className: 'command-palette-help-item' }, '• You can switch to a DM by typing "Open DM with Username".'),
+                                          React.createElement('span', { className: 'command-palette-help-item' }, '• You can also switch to a DM by typing "DM Username".'),
+                                          React.createElement('span', { className: 'command-palette-help-item' }, ' '),
+                                          React.createElement('span', { className: 'command-palette-help-item' }, '• You can switch to a group DM by typing "Open Group Messages with Usernames".'),
+                                          React.createElement('span', { className: 'command-palette-help-item' }, '• You can also switch to a group DM by typing "GDM Usernames".'),
+                                          React.createElement('span', { className: 'command-palette-help-item' }, ' '),
+                                          React.createElement('span', { className: 'command-palette-help-item' }, '• You can switch to a channel by typing "Switch to ChannelName in ServerName".'),
+                                          React.createElement('span', { className: 'command-palette-help-item' }, '• You can also switch to a channel by typing "#ChannelName".'),
+                                          React.createElement('span', { className: 'command-palette-help-item' }, ' '),
 
-                          this.settings.recentCommands.unshift(command);
+                                          React.createElement('span', { className: 'command-palette-help-title' }, 'Voice'),
+                                          React.createElement('span', { className: 'command-palette-help-item' }, '• You can join a voice channel by typing "Join ChannelName in ServerName".'),
+                                          React.createElement('span', { className: 'command-palette-help-item' }, '• You can disconnect from a voice channel by typing "Disconnect from voice channel".'),
+
+                                          React.createElement('span', { className: 'command-palette-help-title' }, 'Plugins and Themes'),
+                                          React.createElement('span', { className: 'command-palette-help-item' }, '• You can toggle a plugin by typing "Toggle plugin PluginName".'),
+                                          React.createElement('span', { className: 'command-palette-help-item' }, '• You can toggle a theme by typing "Toggle theme ThemeName".'),
+                                      ],
+                                  }),
+                              ],
+                              {
+                                  confirmText: 'Cool!',
+                                  cancelText: '',
+                              }
+                          );
+                      }
+
+                      addRecentCommand(command) {
+                          if (this.settings.recentCommands.includes(command.label)) this.settings.recentCommands.splice(this.settings.recentCommands.indexOf(command.label), 1);
+
+                          this.settings.recentCommands.unshift(command.label);
                           if (this.settings.recentCommands.length > 10) this.settings.recentCommands.pop();
                           this.saveSettings();
                       }
@@ -407,17 +566,9 @@ module.exports = (() => {
                                   this.state = {
                                       command: '',
                                       regex: new RegExp('', 'ig'),
-                                      hoveredCommand: 0,
-                                      suggestions: [
-                                          ...this.plugin.settings.recentCommands,
-                                          ...this.plugin.chachedCommands.filter((c) => {
-                                              let flag = true;
-                                              this.plugin.settings.recentCommands.forEach((r) => {
-                                                  if (r.label === c.label) flag = false;
-                                              });
-                                              return flag;
-                                          }),
-                                      ],
+                                      highlightRegex: new RegExp('', 'ig'),
+                                      hoveredCommand: 1,
+                                      suggestions: [...this.plugin.settings.recentCommands.map((rc) => this.plugin.chachedCommands.filter((c) => c.label === rc)[0]), ...this.plugin.chachedCommands.filter((c) => !this.plugin.settings.recentCommands.includes(c.label))],
                                   };
 
                                   this.commandInput = React.createRef();
@@ -433,11 +584,14 @@ module.exports = (() => {
 
                               componentDidUpdate(prevProps, prevState) {
                                   if (prevState.command !== this.state.command) {
-                                      this.setState({ regex: new RegExp(this.state.command.toLowerCase(), 'ig'), hoveredCommand: 1 });
+                                      let rexp = this.state.command.toLowerCase();
+                                      if (rexp[0] === '#') rexp = rexp.substring(1);
+                                      rexp = rexp.split(' ').join('|').split('-').join('|');
+                                      this.setState({ regex: new RegExp(this.state.command.toLowerCase(), 'ig'), highlightRegex: new RegExp(rexp, 'ig'), hoveredCommand: 1 });
                                       if (
                                           this.state.suggestions
                                               .filter((c) => {
-                                                  return c.label.match(this.state.regex);
+                                                  return c.label.match(this.state.regex) || c.alias?.match(this.state.regex);
                                               })
                                               .slice(0, 10).length === 0
                                       )
@@ -473,11 +627,15 @@ module.exports = (() => {
                                                               case 'ArrowDown':
                                                                   if (this.state.hoveredCommand < 10) this.setState({ hoveredCommand: this.state.hoveredCommand + 1 });
                                                                   break;
+                                                          }
+                                                      },
+                                                      onKeyUp: (e) => {
+                                                          switch (e.key) {
                                                               case 'Enter':
                                                                   if (this.state.hoveredCommand != 0) {
                                                                       let command = this.state.suggestions
                                                                           .filter((c) => {
-                                                                              return c.label.match(this.state.regex);
+                                                                              return c.label.match(this.state.regex) || c.alias?.match(this.state.regex);
                                                                           })
                                                                           .slice(0, 10)[this.state.hoveredCommand - 1];
                                                                       if (!command) return;
@@ -496,17 +654,17 @@ module.exports = (() => {
                                                     className: 'command-palette-suggestions',
                                                     children: this.state.suggestions
                                                         .filter((c) => {
-                                                            return c.label.match(this.state.regex);
+                                                            return c.label.match(this.state.regex) || c.alias?.match(this.state.regex);
                                                         })
                                                         .slice(0, 10)
                                                         .map((s, i) => {
                                                             return React.createElement('div', {
                                                                 className: `command-palette-suggestion ${i + 1 === this.state.hoveredCommand ? 'hovered' : ''}`,
                                                                 children: [
-                                                                    this.plugin.getIcon(s.type),
+                                                                    this.plugin.getIcon(s.icon),
                                                                     React.createElement('span', {
                                                                         dangerouslySetInnerHTML: {
-                                                                            __html: s.label.replace(this.state.regex, (match) => {
+                                                                            __html: s.label.replace(this.state.highlightRegex, (match) => {
                                                                                 return `<span class="command-palette-suggestion-match">${match}</span>`;
                                                                             }),
                                                                         },
@@ -539,7 +697,7 @@ module.exports = (() => {
                       }
 
                       closePalette() {
-                          ReactDOM.render(React.createElement(React.Fragment), document.querySelector(`#DiscordCommandPaletteWrapper`));
+                          ReactDOM.unmountComponentAtNode(document.querySelector(`#DiscordCommandPaletteWrapper`));
                           this.keybuffer = [];
                       }
                   };
