@@ -616,7 +616,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
                       patchMessageReplace() {
                           const ChannelTextAreaContainer = WebpackModules.find((m) => m?.type?.render?.displayName === 'ChannelTextAreaContainer')?.type;
 
-                          class TimestampFomratsSelector extends React.Component {
+                          class TimestampFormatsSelector extends React.Component {
                               constructor(props) {
                                   super(props);
                               }
@@ -796,7 +796,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
 
                                   if (timestamps.length > 0)
                                       ret.props.children.push(
-                                          React.createElement(TimestampFomratsSelector, {
+                                          React.createElement(TimestampFormatsSelector, {
                                               timestamps,
                                               onChange: (opts) => {
                                                   this.sendFormatOptions[opts.key] = opts.value;
