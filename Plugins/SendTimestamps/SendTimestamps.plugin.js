@@ -223,7 +223,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
                           this.forceOnRight = false;
                           this.locale = UserSettingsStore.locale;
 
-                          this.sendFomrmatOptions = {
+                          this.sendFormatOptions = {
                               0: 'F',
                           };
 
@@ -616,7 +616,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
                       patchMessageReplace() {
                           const ChannelTextAreaContainer = WebpackModules.find((m) => m?.type?.render?.displayName === 'ChannelTextAreaContainer')?.type;
 
-                          class TimestampFomratsSelector extends React.Component {
+                          class TimestampFormatsSelector extends React.Component {
                               constructor(props) {
                                   super(props);
                               }
@@ -796,10 +796,10 @@ input[type='date']::-webkit-calendar-picker-indicator {
 
                                   if (timestamps.length > 0)
                                       ret.props.children.push(
-                                          React.createElement(TimestampFomratsSelector, {
+                                          React.createElement(TimestampFormatsSelector, {
                                               timestamps,
                                               onChange: (opts) => {
-                                                  this.sendFomrmatOptions[opts.key] = opts.value;
+                                                  this.sendFormatOptions[opts.key] = opts.value;
                                               },
                                           })
                                       );
@@ -816,7 +816,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
                                   let n = 0;
                                   if (timestamps.length > 0)
                                       content = content.replace(/(\{{(.*?)\}})|(<t:[0-9]+:[tTdDfFR]>)/g, (match, p1) => {
-                                          return this.sendFomrmatOptions[n++] || match;
+                                          return this.sendFormatOptions[n++] || match;
                                       });
                               }
                               props.content = content;
@@ -830,7 +830,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
                                   let n = 0;
                                   if (timestamps.length > 0)
                                       content = content.replace(/(\{{(.*?)\}})|(<t:[0-9]+:[tTdDfFR]>)/g, (match, p1) => {
-                                          return this.sendFomrmatOptions[n++] || match;
+                                          return this.sendFormatOptions[n++] || match;
                                       });
                               }
                               props.content = content;
