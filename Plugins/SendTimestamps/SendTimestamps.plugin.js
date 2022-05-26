@@ -830,7 +830,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
                                   let n = 0;
                                   if (timestamps.length > 0)
                                       content = content.replace(/(\{{(.*?)\}})|(<t:[0-9]+:[tTdDfFR]>)/g, (match, p1) => {
-                                          return this.sendFomrmatOptions[n++] || match;
+                                          return this.sendFomrmatOptions[opts.key] || match;
                                       });
                               }
                               props.content = content;
