@@ -219,6 +219,12 @@ module.exports = (() => {
 
                           this.domObserver = new Api.DOMTools.DOMObserver();
                           this.domObserver.subscribeToQuerySelector(myAdditions, `#${this.getName()}-card`);
+
+                          let userSettings = this.loadSettings();
+                          if (!userSettings.usingVersion || userSettings.usingVersion < this.getVersion()) {
+                              this.saveSettings({ ...this.loadSettings(), usingVersion: this.getVersion() });
+                              Api.Modals.showChangelogModal(this.getName(), this.getVersion(), this._config.changelog);
+                          }
                       }
 
                       async initalize() {

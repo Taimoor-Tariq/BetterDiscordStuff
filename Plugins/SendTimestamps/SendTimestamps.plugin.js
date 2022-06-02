@@ -1,6 +1,6 @@
 /**
  * @name SendTimestamps
- * @version 2.1.6
+ * @version 2.1.7
  * @description Send timestamps in your messages easily by adding them in {{...}} or using the button.
  * @author Taimoor
  * @authorId 220161488516546561
@@ -35,11 +35,11 @@
 
 module.exports = (() => {
     const config = {
-        info: { name: 'SendTimestamps', version: '2.1.6', description: 'Send timestamps in your messages easily by adding them in {{...}} or using the button.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] },
+        info: { name: 'SendTimestamps', version: '2.1.7', description: 'Send timestamps in your messages easily by adding them in {{...}} or using the button.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/SendTimestamps/SendTimestamps.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] },
         changelog: [
-            { title: 'v2.1.6 - Bug Fixes', items: ['Fixed seconds reseting to 00.'] },
+            { title: 'v2.1.7 - Bug Fixes', items: ['Fixed button not showing in group DMs', 'Fixed spelling errors in code', 'Changelogs are back!!!'] },
+            { title: 'v2.1.6 - Bug Fixes', type: 'improved', items: ['Fixed seconds reseting to 00.'] },
             { title: 'v2.1.5 - Improvements and Bug Fixes', type: 'improved', items: ['Timestamp format dropdowns now also show up for the `<t:xxxxxxxxxx:f>` format!', 'Fixed options not working when editing messages.'] },
-            { title: 'v2.1.4 - Bug Fixes', type: 'improved', items: ['Plugin now properly remembers last used timestamp fromat.', 'Fixed relative time not swoing right time in modal.', 'Fixed attach-menu hover errors.', 'Fixed typos in changelog.'] },
         ],
         main: 'index.js',
     };
@@ -223,7 +223,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
                           this.forceOnRight = false;
                           this.locale = UserSettingsStore.locale;
 
-                          this.sendFomrmatOptions = {
+                          this.sendFormatOptions = {
                               0: 'F',
                           };
 
@@ -265,6 +265,12 @@ input[type='date']::-webkit-calendar-picker-indicator {
 
                           this.domObserver = new Api.DOMTools.DOMObserver();
                           this.domObserver.subscribeToQuerySelector(myAdditions, `#${this.getName()}-card`);
+
+                          let userSettings = this.loadSettings();
+                          if (!userSettings.usingVersion || userSettings.usingVersion < this.getVersion()) {
+                              this.saveSettings({ ...this.loadSettings(), usingVersion: this.getVersion() });
+                              Api.Modals.showChangelogModal(this.getName(), this.getVersion(), this._config.changelog);
+                          }
                       }
 
                       getSettingsPanel() {
@@ -590,7 +596,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
                               if (this.settings.showInAttachMenu) document.querySelector('.timestamp-button')?.remove();
                               const { channel } = props;
 
-                              if (!this.settings.buttonOnRight && (canSendMessages(channel.id) || channel.type === 1) && !this.settings.showInAttachMenu) {
+                              if (!this.settings.buttonOnRight && (canSendMessages(channel.id) || channel.type === 1 || channel.type === 3) && !this.settings.showInAttachMenu) {
                                   if (!!props.renderAttachButton && props.renderAttachButton.length == 1) {
                                       this.forceOnRight = false;
                                       let attachButton = props.renderAttachButton();
@@ -609,7 +615,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
                               const { channel } = props;
                               this.settings.chatButtonsLength = ret?.props?.children?.length + 1 || 1;
 
-                              if ((this.settings.buttonOnRight || this.forceOnRight) && (canSendMessages(channel.id) || channel.type === 1) && !this.settings.showInAttachMenu) ret?.props?.children.splice(this.settings.buttonIndex, 0, button).join();
+                              if ((this.settings.buttonOnRight || this.forceOnRight) && (canSendMessages(channel.id) || channel.type === 1 || channel.type === 3) && !this.settings.showInAttachMenu) ret?.props?.children.splice(this.settings.buttonIndex, 0, button).join();
                           });
                       }
 
@@ -703,7 +709,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
                                   const d = Date.parse(str) / 1000;
 
                                   if (isNaN(d)) {
-                                      const timestring = str.match(/\b(24:00:00|2[0-3]:[0-5]\d:[0-5]\d|2[0-3]:[0-5]\d|24:00|[01]?\d:[0-5]\d:[0-5]\d( ?(am|pm)?)|[01]?\d:[0-5]\d( ?(am|pm)?))\b/gi);
+                                      const timestring = str.match(/\b(24:00:00|2[0-3]:[0-5]\d:[0-5]\d|2[0-3]:[0-5]\d|24:00|[01]?\d:[0-5]\d:[0-5]\d( ?(am|pm)?)|[01]?\d:[0-5]\d( ?(am|pm)?)|[01]?\d( ?(am|pm)?))\b/gi);
                                       if (timestring) {
                                           const time = timestring[0].split(':');
                                           let dt = new Date();
@@ -765,16 +771,16 @@ input[type='date']::-webkit-calendar-picker-indicator {
                               const { textValue } = props;
                               if (!textValue) return ret;
 
-                              if (/\{{(.*?)\}}/g.test(textValue) || /<t:[0-9]+:[tTdDfFR]>/g.test(textValue)) {
-                                  let timestamps = [...textValue.matchAll(/\{{(.*?)\}}/g), ...textValue.matchAll(/<t:[0-9]+:[tTdDfFR]>/g)]
+                              if (/\{{(.*?)\}}/g.test(textValue) || /<t:[0-9]+:[tTdDfFR]>/g.test(textValue) || /<t:[0-9]+>/g.test(textValue)) {
+                                  let timestamps = [...textValue.matchAll(/\{{(.*?)\}}/g), ...textValue.matchAll(/<t:[0-9]+:[tTdDfFR]>/g), ...textValue.matchAll(/<t:[0-9]+>/g)]
                                       .filter((m) => m[1] != '')
                                       .map((m) => {
-                                          let timestamp = getTimestamp(m[1] || parseInt(m[0].split(':')[1]), /<t:[0-9]+:[tTdDfFR]>/g.test(m[0]));
+                                          let timestamp = getTimestamp(m[1] || parseInt(m[0].split(':')[1]), /<t:[0-9]+:[tTdDfFR]>/g.test(m[0]) || /<t:[0-9]+>/g.test(m[0]));
                                           if (isNaN(timestamp))
                                               return {
                                                   timestamp: new Date().getTime() / 1000,
                                                   timestampFormat: 'F',
-                                                  options: [{ value: 'F', label: 'Error formating this timestamp' }],
+                                                  options: [{ value: 'F', label: 'Error formatting this timestamp' }],
                                               };
 
                                           if (!(timestamp instanceof Date)) timestamp = new Date(timestamp * 1000);
@@ -795,14 +801,26 @@ input[type='date']::-webkit-calendar-picker-indicator {
                                       });
 
                                   if (timestamps.length > 0)
-                                      ret.props.children.push(
-                                          React.createElement(TimestampFomratsSelector, {
-                                              timestamps,
-                                              onChange: (opts) => {
-                                                  this.sendFomrmatOptions[opts.key] = opts.value;
-                                              },
-                                          })
-                                      );
+                                      try {
+                                          ret.props.children.push(
+                                              React.createElement(TimestampFomratsSelector, {
+                                                  timestamps,
+                                                  onChange: (opts) => {
+                                                      this.sendFormatOptions[opts.key] = opts.value;
+                                                  },
+                                              })
+                                          );
+                                      } catch (e) {
+                                          ret.props.children = [
+                                              ret.props.children,
+                                              React.createElement(TimestampFomratsSelector, {
+                                                  timestamps,
+                                                  onChange: (opts) => {
+                                                      this.sendFormatOptions[opts.key] = opts.value;
+                                                  },
+                                              }),
+                                          ];
+                                      }
                               }
 
                               return ret;
@@ -811,12 +829,12 @@ input[type='date']::-webkit-calendar-picker-indicator {
                           Patcher.before(MessageActions, 'editMessage', (_, [__, ___, props], ret) => {
                               let { content } = props;
 
-                              if (/\{{(.*?)\}}/g.test(content) || /<t:[0-9]+:[tTdDfFR]>/g.test(content)) {
-                                  let timestamps = [...content.matchAll(/\{{(.*?)\}}/g), ...content.matchAll(/<t:[0-9]+:[tTdDfFR]>/g)].filter((m) => m[1] != '');
+                              if (/\{{(.*?)\}}/g.test(content) || /<t:[0-9]+:[tTdDfFR]>/g.test(content) || /<t:[0-9]+>/g.test(content)) {
+                                  let timestamps = [...content.matchAll(/\{{(.*?)\}}/g), ...content.matchAll(/<t:[0-9]+:[tTdDfFR]>/g), ...content.matchAll(/<t:[0-9]+>/g)].filter((m) => m[1] != '');
                                   let n = 0;
                                   if (timestamps.length > 0)
-                                      content = content.replace(/(\{{(.*?)\}})|(<t:[0-9]+:[tTdDfFR]>)/g, (match, p1) => {
-                                          return this.sendFomrmatOptions[n++] || match;
+                                      content = content.replace(/(\{{(.*?)\}})|(<t:[0-9]+:[tTdDfFR]>)|(<t:[0-9]+>)/g, (match, p1) => {
+                                          return this.sendFormatOptions[n++] || match;
                                       });
                               }
                               props.content = content;
@@ -830,7 +848,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
                                   let n = 0;
                                   if (timestamps.length > 0)
                                       content = content.replace(/(\{{(.*?)\}})|(<t:[0-9]+:[tTdDfFR]>)/g, (match, p1) => {
-                                          return this.sendFomrmatOptions[n++] || match;
+                                          return this.sendFormatOptions[n++] || match;
                                       });
                               }
                               props.content = content;

@@ -1,6 +1,6 @@
 /**
  * @name DiscordCommandPalette
- * @version 1.0.1
+ * @version 1.0.2
  * @description Add a command palette to discord.
  * @author Taimoor
  * @authorId 220161488516546561
@@ -35,9 +35,10 @@
 
 module.exports = (() => {
     const config = {
-        info: { name: 'DiscordCommandPalette', version: '1.0.1', description: 'Add a command palette to discord.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/DiscordCommandPalette/DiscordCommandPalette.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/DiscordCommandPalette/DiscordCommandPalette.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] },
+        info: { name: 'DiscordCommandPalette', version: '1.0.2', description: 'Add a command palette to discord.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/DiscordCommandPalette/DiscordCommandPalette.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/DiscordCommandPalette/DiscordCommandPalette.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] },
         changelog: [
-            { title: 'v1.0.1 - New Stuff!!!', items: ['Added DMs and GDMs to the command palette.', 'Added option to disconnect from a VC.', 'Added command aliases such as "#" for channels and "dm" for DMs and GDMs.', 'Fixed channels with accents not working.', 'Fixed command palette closing for no reason.'] },
+            { title: 'v1.0.2 - New Stuff!!!', items: ['Missing Icons.', 'Added help command.'] },
+            { title: 'v1.0.1 - New Stuff!!!', type: 'improved', items: ['Added DMs and GDMs to the command palette.', 'Added option to disconnect from a VC.', 'Added command aliases such as "#" for channels and "dm" for DMs and GDMs.', 'Fixed channels with accents not working.', 'Fixed command palette closing for no reason.'] },
             { title: 'v1.0.0 - Release', type: 'improved', items: ['Plugin Released!!!.'] },
         ],
         main: 'index.js',
@@ -169,7 +170,8 @@ module.exports = (() => {
     display: block;
     padding: 4px 0;
     font-size: 1rem;
-}`;
+}
+`;
 
                   return class DiscordCommandPalette extends Plugin {
                       constructor() {
@@ -190,6 +192,9 @@ module.exports = (() => {
                                   VOICE: 'M11.383 3.07904C11.009 2.92504 10.579 3.01004 10.293 3.29604L6 8.00204H3C2.45 8.00204 2 8.45304 2 9.00204V15.002C2 15.552 2.45 16.002 3 16.002H6L10.293 20.71C10.579 20.996 11.009 21.082 11.383 20.927C11.757 20.772 12 20.407 12 20.002V4.00204C12 3.59904 11.757 3.23204 11.383 3.07904ZM14 5.00195V7.00195C16.757 7.00195 19 9.24595 19 12.002C19 14.759 16.757 17.002 14 17.002V19.002C17.86 19.002 21 15.863 21 12.002C21 8.14295 17.86 5.00195 14 5.00195ZM14 9.00195C15.654 9.00195 17 10.349 17 12.002C17 13.657 15.654 15.002 14 15.002V13.002C14.551 13.002 15 12.553 15 12.002C15 11.451 14.551 11.002 14 11.002V9.00195Z',
                                   PLUGIN: 'M21.143 11.429h-1.714V6.857a2.292 2.292 0 00-2.286-2.286H12.57V2.857a2.858 2.858 0 00-5.714 0v1.714H2.286A2.283 2.283 0 00.01 6.857V11.2h1.703A3.087 3.087 0 014.8 14.286a3.087 3.087 0 01-3.086 3.085H0v4.343A2.292 2.292 0 002.286 24h4.343v-1.714A3.087 3.087 0 019.714 19.2a3.087 3.087 0 013.086 3.086V24h4.343a2.292 2.292 0 002.286-2.286v-4.571h1.714a2.858 2.858 0 000-5.714z',
                                   THEME: 'M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12c1.107 0 2-.893 2-2 0-.52-.2-.987-.52-1.347a2.003 2.003 0 01-.507-1.32c0-1.106.894-2 2-2h2.36A6.67 6.67 0 0024 10.667C24 4.773 18.627 0 12 0zM4.667 12c-1.107 0-2-.893-2-2s.893-2 2-2c1.106 0 2 .893 2 2s-.894 2-2 2zm4-5.333c-1.107 0-2-.894-2-2 0-1.107.893-2 2-2 1.106 0 2 .893 2 2 0 1.106-.894 2-2 2zm6.666 0c-1.106 0-2-.894-2-2 0-1.107.894-2 2-2 1.107 0 2 .893 2 2 0 1.106-.893 2-2 2zm4 5.333c-1.106 0-2-.893-2-2s.894-2 2-2c1.107 0 2 .893 2 2s-.893 2-2 2z',
+                                  DM: 'M4.79805 3C3.80445 3 2.99805 3.8055 2.99805 4.8V15.6C2.99805 16.5936 3.80445 17.4 4.79805 17.4H7.49805V21L11.098 17.4H19.198C20.1925 17.4 20.998 16.5936 20.998 15.6V4.8C20.998 3.8055 20.1925 3 19.198 3H4.79805Z',
+                                  LEAVE_VOICE: 'M21.1169 1.11603L22.8839 2.88403L19.7679 6.00003L22.8839 9.11603L21.1169 10.884L17.9999 7.76803L14.8839 10.884L13.1169 9.11603L16.2329 6.00003L13.1169 2.88403L14.8839 1.11603L17.9999 4.23203L21.1169 1.11603ZM18 22H13C6.925 22 2 17.075 2 11V6C2 5.447 2.448 5 3 5H7C7.553 5 8 5.447 8 6V10C8 10.553 7.553 11 7 11H6C6.063 14.938 9 18 13 18V17C13 16.447 13.447 16 14 16H18C18.553 16 19 16.447 19 17V21C19 21.553 18.553 22 18 22Z',
+                                  HELP: 'M12 2C6.486 2 2 6.487 2 12C2 17.515 6.486 22 12 22C17.514 22 22 17.515 22 12C22 6.487 17.514 2 12 2ZM12 18.25C11.31 18.25 10.75 17.691 10.75 17C10.75 16.31 11.31 15.75 12 15.75C12.69 15.75 13.25 16.31 13.25 17C13.25 17.691 12.69 18.25 12 18.25ZM13 13.875V15H11V12H12C13.104 12 14 11.103 14 10C14 8.896 13.104 8 12 8C10.896 8 10 8.896 10 10H8C8 7.795 9.795 6 12 6C14.205 6 16 7.795 16 10C16 11.861 14.723 13.429 13 13.875Z',
                               };
 
                               return React.createElement('svg', {
@@ -303,6 +308,12 @@ module.exports = (() => {
 
                           this.domObserver = new Api.DOMTools.DOMObserver();
                           this.domObserver.subscribeToQuerySelector(myAdditions, `#${this.getName()}-card`);
+
+                          let userSettings = this.loadSettings();
+                          if (!userSettings.usingVersion || userSettings.usingVersion < this.getVersion()) {
+                              this.saveSettings({ ...this.loadSettings(), usingVersion: this.getVersion() });
+                              Api.Modals.showChangelogModal(this.getName(), this.getVersion(), this._config.changelog);
+                          }
                       }
 
                       getSettingsPanel() {
@@ -326,6 +337,7 @@ module.exports = (() => {
                               }
 
                               render() {
+                                  console.log(this.state);
                                   const KeybindInput = React.createElement(Keybind, {
                                       defaultValue: this.state.keybind.map((a) => [0, a || 0, 1]),
                                       onChange: (e) => {
@@ -536,10 +548,12 @@ module.exports = (() => {
                                           React.createElement('span', { className: 'command-palette-help-title' }, 'Voice'),
                                           React.createElement('span', { className: 'command-palette-help-item' }, '• You can join a voice channel by typing "Join ChannelName in ServerName".'),
                                           React.createElement('span', { className: 'command-palette-help-item' }, '• You can disconnect from a voice channel by typing "Disconnect from voice channel".'),
+                                          React.createElement('span', { className: 'command-palette-help-item' }, ' '),
 
                                           React.createElement('span', { className: 'command-palette-help-title' }, 'Plugins and Themes'),
                                           React.createElement('span', { className: 'command-palette-help-item' }, '• You can toggle a plugin by typing "Toggle plugin PluginName".'),
                                           React.createElement('span', { className: 'command-palette-help-item' }, '• You can toggle a theme by typing "Toggle theme ThemeName".'),
+                                          React.createElement('span', { className: 'command-palette-help-item' }, ' '),
                                       ],
                                   }),
                               ],
