@@ -1,6 +1,6 @@
 /**
  * @name DiscordCommandPalette
- * @version 1.0.2
+ * @version 1.0.3
  * @description Add a command palette to discord.
  * @author Taimoor
  * @authorId 220161488516546561
@@ -35,11 +35,11 @@
 
 module.exports = (() => {
     const config = {
-        info: { name: 'DiscordCommandPalette', version: '1.0.2', description: 'Add a command palette to discord.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/DiscordCommandPalette/DiscordCommandPalette.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/DiscordCommandPalette/DiscordCommandPalette.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] },
+        info: { name: 'DiscordCommandPalette', version: '1.0.3', description: 'Add a command palette to discord.', author: 'Taimoor', authorId: '220161488516546561', authorLink: 'https://github.com/Taimoor-Tariq', source: 'https://github.com/Taimoor-Tariq/BetterDiscordStuff/blob/main/Plugins/DiscordCommandPalette/DiscordCommandPalette.plugin.js', github_raw: 'https://raw.githubusercontent.com/Taimoor-Tariq/BetterDiscordStuff/main/Plugins/DiscordCommandPalette/DiscordCommandPalette.plugin.js', donate: 'https://ko-fi.com/TaimoorTariq', authors: [{ name: 'Taimoor', discord_id: '220161488516546561' }] },
         changelog: [
-            { title: 'v1.0.2 - New Stuff!!!', items: ['Missing Icons.', 'Added help command.'] },
-            { title: 'v1.0.1 - New Stuff!!!', type: 'improved', items: ['Added DMs and GDMs to the command palette.', 'Added option to disconnect from a VC.', 'Added command aliases such as "#" for channels and "dm" for DMs and GDMs.', 'Fixed channels with accents not working.', 'Fixed command palette closing for no reason.'] },
-            { title: 'v1.0.0 - Release', type: 'improved', items: ['Plugin Released!!!.'] },
+            { title: 'v1.0.3 - Works again!', items: ['Fixed Bugs.'] },
+            { title: 'v1.0.2 - New Stuff!', type: 'improved', items: ['Missing Icons.', 'Added help command.'] },
+            { title: 'v1.0.1 - New Commands!', type: 'improved', items: ['Added DMs and GDMs commands.', 'Added option to disconnect from a VC.', 'Added command aliases such as "#" for channels and "dm" for DMs and GDMs.', 'Fixed channels with accents not working.', 'Fixed command palette closing for no reason.'] },
         ],
         main: 'index.js',
     };
@@ -582,7 +582,7 @@ module.exports = (() => {
                                       regex: new RegExp('', 'ig'),
                                       highlightRegex: new RegExp('', 'ig'),
                                       hoveredCommand: 1,
-                                      suggestions: [...this.plugin.settings.recentCommands.map((rc) => this.plugin.chachedCommands.filter((c) => c.label === rc)[0]), ...this.plugin.chachedCommands.filter((c) => !this.plugin.settings.recentCommands.includes(c.label))],
+                                      suggestions: [...this.plugin.settings.recentCommands.map((rc) => this.plugin.chachedCommands.filter((c) => c.label === rc)[0]), ...this.plugin.chachedCommands.filter((c) => !this.plugin.settings.recentCommands.includes(c.label))].filter((c) => c !== undefined),
                                   };
 
                                   this.commandInput = React.createRef();
@@ -677,11 +677,17 @@ module.exports = (() => {
                                                                 children: [
                                                                     this.plugin.getIcon(s.icon),
                                                                     React.createElement('span', {
-                                                                        dangerouslySetInnerHTML: {
-                                                                            __html: s.label.replace(this.state.highlightRegex, (match) => {
-                                                                                return `<span class="command-palette-suggestion-match">${match}</span>`;
+                                                                        children: [
+                                                                            ...s.label.split(this.state.highlightRegex).map((m, j) => {
+                                                                                return [
+                                                                                    m,
+                                                                                    React.createElement('span', {
+                                                                                        className: 'command-palette-suggestion-match',
+                                                                                        children: s.label.match(this.state.highlightRegex) ? s.label.match(this.state.highlightRegex)[j] : '',
+                                                                                    }),
+                                                                                ];
                                                                             }),
-                                                                        },
+                                                                        ],
                                                                     }),
                                                                 ],
                                                                 onClick: () => {
