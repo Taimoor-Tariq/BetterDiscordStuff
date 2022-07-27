@@ -802,7 +802,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
 
                                   if (timestamps.length > 0)
                                       try {
-                                          ret.props.children.push(
+                                          ret.props.children.props.children.push(
                                               React.createElement(TimestampFomratsSelector, {
                                                   timestamps,
                                                   onChange: (opts) => {
