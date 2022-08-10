@@ -223,10 +223,6 @@ input[type='date']::-webkit-calendar-picker-indicator {
                           this.forceOnRight = false;
                           this.locale = UserSettingsStore.locale;
 
-                          this.sendFormatOptions = {
-                              0: 'F',
-                          };
-
                           this.replaceTextAreaText = (text) => {
                               ComponentDispatch.dispatchToLastSubscribed(ComponentActions.CLEAR_TEXT);
                               setImmediate(() => {
