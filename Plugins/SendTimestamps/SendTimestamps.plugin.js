@@ -1,6 +1,6 @@
 /**
  * @name SendTimestamps
- * @version 2.1.7
+ * @version 2.1.8
  * @description Send timestamps in your messages easily by adding them in {{...}} or using the button.
  * @author Taimoor
  * @authorId 220161488516546561
@@ -84,7 +84,7 @@ module.exports = (() => {
                       Modals,
                       DOMTools,
                       WebpackModules,
-                      DiscordModules: { React, MessageActions, Slider, Dropdown, SwitchRow, UserSettingsStore },
+                      DiscordModules: { React, MessageActions, Slider, Dropdown, SwitchRow, LocaleManager },
                   } = Api;
                   const ComponentDispatch = WebpackModules.getByProps('ComponentDispatch').ComponentDispatch;
                   const ComponentActions = WebpackModules.getByProps('ComponentActions').ComponentActions;
@@ -221,7 +221,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
                           };
 
                           this.forceOnRight = false;
-                          this.locale = UserSettingsStore.locale;
+                          this.locale = LocaleManager.getLocale() ?? 'en';
 
                           this.sendFormatOptions = {
                               0: 'F',
