@@ -1,0 +1,8 @@
+{
+	"dependencies": {
+		"react": "^18.2.0"
+	},
+	"scripts": {
+		"copy": "node scripts/copy.js"
+	}
+}
