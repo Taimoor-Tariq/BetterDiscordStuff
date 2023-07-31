@@ -1,17 +1,19 @@
+/// <reference path="../../types.d.ts" />
 /// <reference path="../../Builder/types.d.ts" />
 
-import { after, unpatchAll } from "@patcher";
+import { unpatchAll } from "@patcher";
 import { Plugin } from "@structs";
+// import {} from "@webpack";
+// import {} from "@settings";
+
 import React from "react";
 
 export default class Test extends Plugin {
     onStart() {
-        console.log("Hey.", after);
-
-        BdApi.alert("Hey.", <p>Hello.</p>);
+        // BdApi.alert("Hey.", <p>Hello.</p>);
     }
 
     onStop() {
-        console.log("Bye.", unpatchAll);
+        unpatchAll();
     }
 }
